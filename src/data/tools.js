@@ -224,13 +224,36 @@ export const sidebarCategories = [
   { id: 'Office Tools', name: '办公工具', icon: 'Briefcase' },
   { id: 'Life', name: '生活常用', icon: 'Umbrella' }, // 新增生活分类
   { id: 'Community', name: '社区资源', icon: 'ChatDotRound' }, // 新增社区分类
+
 ];
 
 // 侧边栏底部链接
 export const sidebarBottomLinks = [
-  { id: 'news', name: '每日 AI 快讯', icon: 'DataLine', url: '#' }, // 使用 # 作为示例链接
-  { id: 'chatgroup', name: 'AI 交流群', icon: 'Promotion', url: '#' },
-  { id: 'hottopics', name: '热门工具', icon: 'HotWater', url: '#' }, // 可以链接到下方热门工具区域
+  { id: 'llm-ranking', 
+    name: 'LLM 排行榜', 
+    icon: 'DataLine', 
+    route: { name: 'Ranking' } },
+  // 示例：假设 "每日 AI 快讯" 是一个内部页面，使用 route 对象
+  {
+    id: 'news',
+    name: '每日 AI 快讯',
+    icon: 'DataLine',
+    route: { name: 'News' } // 指向名为 'News' 的路由
+  },
+  // 示例：假设 "AI 交流群" 是一个外部链接，保留 url
+  {
+    id: 'chatgroup',
+    name: 'AI 交流群',
+    icon: 'Promotion',
+    url: 'https://www.zhengjiyuan.top' // 保留外部链接
+  },
+  // 示例：假设 "热门工具" 也是一个内部页面
+  {
+    id: 'hottopics',
+    name: '热门工具',
+    icon: 'HotWater',
+    route: { name: 'HotTools' } // 指向名为 'HotTools' 的路由
+  },
 ];
 
 // 右侧内容区顶部导航分类

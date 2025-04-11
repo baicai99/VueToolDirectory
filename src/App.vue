@@ -13,7 +13,6 @@
       :all-tools-data="allToolsData"
       :selected-sidebar-category="currentSidebarCategory"
       :sidebar-search-query="currentSidebarSearch"
-      :quick-links="quickSearchLinksData"
       :content-tabs="contentTabsData"
       v-slot="{ Component }"
     >
@@ -27,7 +26,7 @@
 
 <script setup>
 import { ref } from 'vue';
-import { useRouter } from 'vue-router'; // <--- 1. 导入 useRouter
+import { useRouter } from 'vue-router'; // 确保已导入
 
 // 导入侧边栏组件和数据
 import SidebarNav from './components/SidebarNav.vue';
@@ -40,7 +39,7 @@ import {
 } from './data/tools.js';
 
 // --- 获取 router 实例 ---
-const router = useRouter(); // <--- 2. 获取 router 实例
+const router = useRouter(); // 获取 router 实例
 
 // --- 状态管理 ---
 const allToolsData = ref(allTools);
@@ -49,25 +48,28 @@ const sidebarBottomLinksData = ref(sidebarBottomLinks);
 // const quickSearchLinksData = ref(quickSearchLinks); // 确认已移除
 const contentTabsData = ref(contentTabs);
 
+// currentSidebarCategory 用于追踪侧边栏的选中状态，以便高亮显示
 const currentSidebarCategory = ref('all');
 const currentSidebarSearch = ref('');
 
-// --- 修改这个方法 ---
+// --- 简化这个方法 ---
+// 此方法现在只处理主分类菜单的点击事件
 const updateSidebarCategory = (categoryId) => {
-  console.log('Category selected in App:', categoryId); // 可以加个 log 确认
-  currentSidebarCategory.value = categoryId; // 更新分类状态
+  // console.log('Main Category selected in App:', categoryId); // 用于调试
+  currentSidebarCategory.value = categoryId; // 更新侧边栏高亮状态
   currentSidebarSearch.value = ''; // 清空侧边栏搜索
 
-  // --- 添加路由跳转 ---
-  // 无论当前在哪，点击分类都跳转回主列表页 '/'
-  router.push('/'); // <--- 3. 添加这行代码
-  // --- 添加结束 ---
+  // --- 直接导航到主页 ---
+  // 因为 llm-ranking 的导航已由 SidebarNav 的 handleBottomLinkClick 处理
+  // 所以这里不需要再做特殊判断，点击任何主分类都去主页
+  router.push('/');
+  // --- 简化结束 ---
 };
 
 const updateSidebarSearch = (query) => {
     currentSidebarSearch.value = query;
-    // 如果希望在侧边栏搜索时也跳转回主页，也可以在这里加 router.push('/')
-    // router.push('/');
+    // 搜索时，通常也跳转回主页以显示过滤结果
+    router.push('/');
 };
 
 </script>
