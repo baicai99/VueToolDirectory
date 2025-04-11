@@ -33,7 +33,6 @@ import {
     allTools,
     sidebarCategories,
     sidebarBottomLinks,
-    quickSearchLinks,
     contentTabs // 确保 contentTabs 也被导入
 } from './data/tools.js';
 
@@ -41,7 +40,6 @@ import {
 const allToolsData = ref(allTools);
 const sidebarCategoriesData = ref(sidebarCategories);
 const sidebarBottomLinksData = ref(sidebarBottomLinks);
-const quickSearchLinksData = ref(quickSearchLinks);
 const contentTabsData = ref(contentTabs);
 
 const currentSidebarCategory = ref('all');

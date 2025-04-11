@@ -1,33 +1,24 @@
+// src/components/ContentArea.vue
 <template>
   <el-main class="content-area-main">
-    <el-input v-model="contentSearchTerm" placeholder="在当前分类下搜索工具..." :prefix-icon="Search" clearable
-      class="search-input" />
-
-    <div class="quick-search-container">
-      <el-button v-for="link in quickLinks" :key="link.name" type="primary" plain size="small"
-        @click="quickSearch(link.url)">
-        {{ link.name }} 搜索
-      </el-button>
-    </div>
-
     <el-tabs v-model="activeContentTab" class="content-tabs" @tab-click="handleTabClick">
       <el-tab-pane v-for="tab in contentTabs" :key="tab.tag" :label="tab.name" :name="tab.tag" />
       <el-tab-pane label="全部" name="all-tags"></el-tab-pane>
     </el-tabs>
 
-    <div v-if="featuredTools.length > 0" class="featured-banner-container">
-      <a v-for="tool in featuredTools" :key="tool.id" :href="tool.url" target="_blank" class="banner-link">
-        <div class="banner-recommendation">
-          <span class="banner-content">
-            <el-icon>
-              <Promotion />
-            </el-icon> {{ tool.name }} - {{ tool.description }}
-          </span>
-          <el-button type="primary" link>查看详情 <el-icon>
-              <ArrowRight />
-            </el-icon></el-button>
-        </div>
-      </a>
+    <div v-if="featuredTools.length > 0" class="featured-banner-container" style="margin-top: 20px;">
+       <div
+          v-for="tool in featuredTools"
+          :key="tool.id"
+          class="banner-recommendation"
+          @click="goToDetail(tool.id)"
+          style="cursor: pointer;"
+       >
+           <span class="banner-content">
+             <el-icon><Promotion /></el-icon> {{ tool.name }} - {{ tool.description }}
+           </span>
+           <el-button type="primary" link>查看详情 <el-icon><ArrowRight /></el-icon></el-button>
+       </div>
     </div>
 
     <el-divider v-if="featuredTools.length > 0" class="section-divider" />
@@ -58,50 +49,34 @@
 
 <script setup>
 import { ref, computed, defineProps, watch } from 'vue';
+import { useRouter } from 'vue-router';
 import ToolCard from './ToolCard.vue';
-import { Search, Promotion, ArrowRight, HotWater } from '@element-plus/icons-vue';
+// 移除了未使用的 Search 图标导入，保留了其他需要的图标
+import { Promotion, ArrowRight, HotWater, Link } from '@element-plus/icons-vue';
 
 // --- Props Definition ---
 const props = defineProps({
-  allToolsData: { // 所有工具数据
-    type: Array,
-    required: true,
-  },
-  selectedSidebarCategory: { // 侧边栏选中的分类 (来自父组件)
-    type: String,
-    default: 'all',
-  },
-  sidebarSearchQuery: { // 侧边栏的搜索词 (来自父组件)
-    type: String,
-    default: '',
-  },
-  quickLinks: { // 快速搜索链接
-    type: Array,
-    required: true,
-  },
-  contentTabs: { // 内容区标签页定义
-    type: Array,
-    required: true,
-  }
+  allToolsData: { type: Array, required: true },
+  selectedSidebarCategory: { type: String, default: 'all' },
+  sidebarSearchQuery: { type: String, default: '' },
+  // 移除了不再使用的 quickLinks prop
+  // quickLinks: { type: Array, required: true },
+  contentTabs: { type: Array, required: true }
 });
 
+// --- Router Instance ---
+const router = useRouter();
+
 // --- Internal State ---
-const contentSearchTerm = ref(''); // 内容区搜索框绑定值
-const activeContentTab = ref('常用'); // 当前激活的内容区标签页
+// 移除了不再使用的 contentSearchTerm ref
+// const contentSearchTerm = ref('');
+const activeContentTab = ref('常用'); // 保留 Tab 状态
 
 // --- Helper Functions ---
-
-/**
- * 根据查询字符串过滤工具列表 (搜索名称、描述、标签)
- * @param {Array} tools - 需要过滤的工具数组
- * @param {string} query - 搜索查询字符串
- * @returns {Array} 过滤后的工具数组
- */
+// filterToolsByQuery 仍然被侧边栏搜索使用，所以保留
 const filterToolsByQuery = (tools, query) => {
   const normalizedQuery = query.trim().toLowerCase();
-  if (!normalizedQuery) {
-    return tools; // 如果查询为空，返回原数组
-  }
+  if (!normalizedQuery) return tools;
   return tools.filter(tool =>
     tool.name.toLowerCase().includes(normalizedQuery) ||
     tool.description.toLowerCase().includes(normalizedQuery) ||
@@ -110,91 +85,70 @@ const filterToolsByQuery = (tools, query) => {
 };
 
 // --- Computed Properties ---
-
-// 1. 基于侧边栏分类和搜索过滤的工具 (不含特色推荐)
+// toolsFilteredBySidebar 仍然需要根据侧边栏分类和侧边栏搜索过滤
 const toolsFilteredBySidebar = computed(() => {
   let tools = props.allToolsData.filter(tool => !tool.isFeatured);
-
-  // 按侧边栏分类过滤
   if (props.selectedSidebarCategory !== 'all') {
     tools = tools.filter(tool => tool.category === props.selectedSidebarCategory);
   }
-
-  // 按侧边栏搜索过滤
+  // 仍然使用 filterToolsByQuery 来处理侧边栏搜索
   tools = filterToolsByQuery(tools, props.sidebarSearchQuery);
-
   return tools;
 });
 
-// 2. 基于内容区Tab和内容区搜索过滤的最终显示工具
+// filteredTools 现在只根据侧边栏结果和内容区 Tab 过滤
 const filteredTools = computed(() => {
-  let tools = toolsFilteredBySidebar.value; // 从侧边栏过滤结果开始
-
-  // 按内容区Tab标签过滤
+  let tools = toolsFilteredBySidebar.value;
   if (activeContentTab.value !== 'all-tags') {
     const currentTag = activeContentTab.value;
     tools = tools.filter(tool => tool.tags && tool.tags.includes(currentTag));
   }
-
-  // 按内容区搜索过滤
-  tools = filterToolsByQuery(tools, contentSearchTerm.value);
-
+  // 移除了根据 contentSearchTerm 的过滤步骤
+  // tools = filterToolsByQuery(tools, contentSearchTerm.value);
   return tools;
 });
 
-// 3. 特色推荐工具 (不受侧边栏和内容区过滤影响)
+// featuredTools 和 hotTools 计算属性保持不变
 const featuredTools = computed(() => {
   return props.allToolsData.filter(tool => tool.isFeatured === true);
 });
 
-// 4. 热门工具 (不受当前过滤影响, 且不应是特色推荐)
 const hotTools = computed(() => {
   return props.allToolsData.filter(tool => tool.isHot === true && !tool.isFeatured);
 });
 
 // --- Methods ---
 
-// 执行快速搜索
-const quickSearch = (baseUrl) => {
-  const query = contentSearchTerm.value.trim();
-  if (query) {
-    const encodedQuery = encodeURIComponent(query);
-    window.open(`${baseUrl}${encodedQuery}`, '_blank');
+// goToDetail 方法保留，用于横幅推荐点击
+const goToDetail = (toolId) => {
+  if (toolId) {
+    router.push({ name: 'ToolDetail', params: { id: toolId } });
   } else {
-    // 如果搜索词为空，尝试打开搜索引擎主页
-    try {
-      const url = new URL(baseUrl);
-      window.open(url.origin, '_blank');
-    } catch (e) {
-      // 如果 baseUrl 格式不正确，或者不含查询参数部分，直接打开原始 baseUrl
-      window.open(baseUrl.split('?')[0], '_blank');
-    }
+    console.error('Featured tool ID is missing, cannot navigate.');
   }
 };
 
-// 点击内容区Tab时的处理 (可根据需要添加逻辑)
+// 移除了不再使用的 quickSearch 方法
+// const quickSearch = (baseUrl) => { ... };
+
+// handleTabClick 方法目前为空，如果不需要可以移除，暂时保留
 const handleTabClick = (tab) => {
   // console.log('Tab clicked:', tab.props.name);
-  // 切换Tab时可以清空内容区搜索框，如果需要的话:
-  // contentSearchTerm.value = '';
 };
 
 // --- Watchers ---
-
-// 监听侧边栏分类变化，重置内容区状态
+// Watchers 仍然有用，用于在侧边栏变化时重置内容区 Tab
 watch(() => props.selectedSidebarCategory, (newVal, oldVal) => {
   if (newVal !== oldVal) {
-    activeContentTab.value = '常用'; // 重置Tab到'常用' (或 'all-tags')
-    contentSearchTerm.value = ''; // 清空内容区搜索
+    activeContentTab.value = '常用';
+    // contentSearchTerm.value = ''; // 因为 contentSearchTerm 已移除，这行也不需要了
   }
 });
 
-// 监听侧边栏搜索变化，重置内容区状态
 watch(() => props.sidebarSearchQuery, (newVal, oldVal) => {
   if (newVal !== oldVal) {
-    // 当侧边栏有搜索时，内容区通常显示所有标签下的匹配结果
     activeContentTab.value = 'all-tags';
-    contentSearchTerm.value = ''; // 清空内容区搜索
+    // contentSearchTerm.value = ''; // 因为 contentSearchTerm 已移除，这行也不需要了
   }
 });
 
@@ -210,25 +164,12 @@ watch(() => props.sidebarSearchQuery, (newVal, oldVal) => {
   background-color: #f0f2f5; /* 内容区背景色 */
 }
 
-/* 内容区搜索框 */
-.search-input {
-  margin-bottom: 20px;
-}
-
-/* 快速搜索按钮容器 */
-.quick-search-container {
-  margin-bottom: 20px;
-
-  .el-button {
-    margin-right: 10px;
-    margin-bottom: 10px; /* 处理换行时的底部间距 */
-  }
-}
+/* 移除了 .search-input 和 .quick-search-container 的样式 */
 
 /* 内容区标签页 */
 .content-tabs {
-  margin-bottom: 15px; /* tab 和下方内容的间距 */
-  background-color: #fff; /* 给 tabs 一个白色背景 */
+  margin-bottom: 15px;
+  background-color: #fff;
   padding: 0 15px;
   border-radius: 4px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
@@ -241,7 +182,7 @@ watch(() => props.sidebarSearchQuery, (newVal, oldVal) => {
 
 /* 单个特色推荐横幅 */
 .banner-recommendation {
-  margin-bottom: 20px; /* 每个横幅之间的间距 */
+  margin-bottom: 20px;
   border: 1px solid #ebeef5;
   padding: 15px;
   border-radius: 4px;
@@ -250,55 +191,52 @@ watch(() => props.sidebarSearchQuery, (newVal, oldVal) => {
   align-items: center;
   justify-content: space-between;
   transition: box-shadow 0.2s ease-in-out;
+  // cursor: pointer; // 已通过内联 style 添加
 
   &:hover {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   }
 
   .banner-content {
-    /* 左侧内容 */
     font-size: 1.1em;
     font-weight: 500;
     display: flex;
     align-items: center;
-    color: #303133; /* 确保文字颜色 */
+    color: #303133;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 
     .el-icon {
       margin-right: 8px;
+      flex-shrink: 0;
     }
   }
 
-  /* 右侧按钮（el-button type="primary" link）由 Element Plus 控制样式 */
+  .el-button {
+     flex-shrink: 0;
+  }
 }
-
-/* 包裹横幅的链接 */
-.banner-link {
-  text-decoration: none;
-  color: inherit; /* 继承父元素颜色，覆盖默认链接颜色 */
-  display: block; /* 使整个区域可点击，并让 margin-bottom 生效 */
-}
-
 
 /* 分割线通用样式 */
 .section-divider {
   margin-top: 30px;
   margin-bottom: 25px;
 
-  /* 针对带文字的分割线标题样式 */
   :deep(.el-divider__text) {
     display: flex;
     align-items: center;
-    gap: 5px; /* 图标和文字间距 */
+    gap: 5px;
     font-size: 1.1em;
     color: #303133;
     font-weight: 500;
   }
 }
 
-/* 工具卡片网格 和 热门工具卡片网格 (合并了相同的 margin-top) */
+/* 工具卡片网格 和 热门工具卡片网格 */
 .tools-grid,
 .hot-tools-grid {
-  margin-top: 20px; /* 网格与上方元素的间距 */
+  margin-top: 20px;
 }
 
 /* 空状态样式 */

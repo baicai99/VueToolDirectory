@@ -1,8 +1,8 @@
 // 模拟工具数据
 // 实际应用中，这应该从后端 API 获取
 export const allTools = [
-   // AI 工具集
-   {
+  // AI 工具集
+  {
     id: 'gemini', // 使用小写 id
     name: 'Gemini', // 工具名称
     description: 'Google 开发的先进多模态 AI 模型。', // 简短描述
@@ -12,7 +12,7 @@ export const allTools = [
     category: 'AI Tools', // 分类
     tags: ['ai', 'chatbot', 'google', 'multimodal', 'llm', '对话', '常用', '图片', '视频', '代码'], // 相关标签
     isHot: true, // 是否热门
-    isFeatured: false, // 是否特色推荐
+    isFeatured: true, // 是否特色推荐
   },
   {
     id: 'chatgpt',
@@ -46,7 +46,7 @@ export const allTools = [
     icon: 'src/assets/icons/remove-photos.png', // 示例图标路径，请替换为实际文件
     url: 'https://remove.photos/', // 网站 URL
     category: 'Image Tools', // 分类为图片工具
-    tags: ['图片', '背景移除', '抠图', '免费', 'ai', '在线工具', 'image processing','常用'], // 相关标签
+    tags: ['图片', '背景移除', '抠图', '免费', 'ai', '在线工具', 'image processing', '常用'], // 相关标签
     isHot: false, // 是否热门 (可自行调整)
     isFeatured: false, // 是否特色推荐
   },
@@ -212,42 +212,34 @@ export const allTools = [
     isHot: false,
     isFeatured: false,
   },
-  ];
-  
-  // 提取侧边栏导航分类
-  export const sidebarCategories = [
-    { id: 'all', name: '所有工具', icon: 'Grid' }, // 添加“所有工具”选项
-    { id: 'AI Tools', name: 'AI 工具集', icon: 'Cpu' },
-    { id: 'Text Tools', name: '文本工具', icon: 'Document' },
-    { id: 'Video Tools', name: '视频工具', icon: 'VideoCamera' },
-    { id: 'Image Tools', name: '图片工具', icon: 'Picture' },
-    { id: 'Office Tools', name: '办公工具', icon: 'Briefcase' },
-    { id: 'Life', name: '生活常用', icon: 'Umbrella' }, // 新增生活分类
-    { id: 'Community', name: '社区资源', icon: 'ChatDotRound' }, // 新增社区分类
-  ];
-  
-  // 侧边栏底部链接
-  export const sidebarBottomLinks = [
-      { id: 'news', name: '每日 AI 快讯', icon: 'DataLine', url: '#' }, // 使用 # 作为示例链接
-      { id: 'chatgroup', name: 'AI 交流群', icon: 'Promotion', url: '#' },
-      { id: 'hottopics', name: '热门工具', icon: 'HotWater', url: '#' }, // 可以链接到下方热门工具区域
-  ];
-  
-  // 右侧内容区顶部导航分类
-  export const contentTabs = [
-      { name: '常用', tag: '常用' },
-      { name: '社区', tag: '社区' },
-      { name: '图片', tag: '图片' },
-      { name: '生活', tag: '生活' },
-      { name: '办公', tag: '办公' },
-      { name: '视频', tag: '视频' },
-      // 可以根据需要添加更多
-  ];
-  
-  // 快速搜索链接
-  export const quickSearchLinks = [
-      { name: 'Bing', url: 'https://www.bing.com/search?q=' },
-      { name: 'Google', url: 'https://www.google.com/search?q=' },
-      { name: 'Perplexity', url: 'https://www.perplexity.ai/search?q=' },
-      { name: 'DuckDuckGo', url: 'https://duckduckgo.com/?q=' },
-  ];
+];
+
+// 提取侧边栏导航分类
+export const sidebarCategories = [
+  { id: 'all', name: '所有工具', icon: 'Grid' }, // 添加“所有工具”选项
+  { id: 'AI Tools', name: 'AI 工具集', icon: 'Cpu' },
+  { id: 'Text Tools', name: '文本工具', icon: 'Document' },
+  { id: 'Video Tools', name: '视频工具', icon: 'VideoCamera' },
+  { id: 'Image Tools', name: '图片工具', icon: 'Picture' },
+  { id: 'Office Tools', name: '办公工具', icon: 'Briefcase' },
+  { id: 'Life', name: '生活常用', icon: 'Umbrella' }, // 新增生活分类
+  { id: 'Community', name: '社区资源', icon: 'ChatDotRound' }, // 新增社区分类
+];
+
+// 侧边栏底部链接
+export const sidebarBottomLinks = [
+  { id: 'news', name: '每日 AI 快讯', icon: 'DataLine', url: '#' }, // 使用 # 作为示例链接
+  { id: 'chatgroup', name: 'AI 交流群', icon: 'Promotion', url: '#' },
+  { id: 'hottopics', name: '热门工具', icon: 'HotWater', url: '#' }, // 可以链接到下方热门工具区域
+];
+
+// 右侧内容区顶部导航分类
+export const contentTabs = [
+  { name: '常用', tag: '常用' },
+  { name: '社区', tag: '社区' },
+  { name: '图片', tag: '图片' },
+  { name: '生活', tag: '生活' },
+  { name: '办公', tag: '办公' },
+  { name: '视频', tag: '视频' },
+  // 可以根据需要添加更多
+];
