@@ -15,6 +15,18 @@ export const allTools = [
     isFeatured: true, // 是否特色推荐
   },
   {
+    id: 'hidreamai', // 使用小写 id
+    name: 'HiDream AI', // 工具名称
+    description: '一个 AI 驱动的图像生成与创作探索平台。', // 简短描述
+    longDescription: `HiDream AI 是一个专注于 AI 图像生成和创意设计的在线平台。Explore 页面是你发现和探索 AI 艺术创作无限可能的入口。\n\n该平台通常具备以下特性：\n* **AI 图像生成：** 用户可以通过文本描述（Text-to-Image）快速生成独特的图像，或利用其他 AI 技术（如 Image-to-Image）进行创作。\n* **风格多样：** 可能提供多种预设模型或风格，让用户可以创作出不同艺术流派或特定效果的图片。\n* **社区分享与发现：** Explore 页面通常用于展示平台上的热门作品、最新创作或特色模型，用户可以在这里浏览他人的作品获取灵感。\n* **创作工具集：** 除了基础生成，可能还包含一些图像编辑、优化或扩展的功能。\n\n无论你是设计师、艺术家、内容创作者，还是仅仅对 AI 生成艺术感到好奇，都可以在 HiDream AI Explore 页面找到灵感和工具，创作出令人惊叹的视觉效果。它旨在降低 AI 艺术创作的门槛，激发用户的创造力。`, // 详细描述
+    icon: 'src/assets/icons/hidream.png', // 示例图标路径，请替换为实际文件并确认格式 (例如 .png, .jpg, .svg)
+    url: 'https://hidreamai.com/explore', // HiDream AI Explore 页面的访问地址
+    category: 'AI Tools', // 分类 (或 'Image Generation', 'Creative Tools')
+    tags: ['ai', '常用', 'image generation', 'text to image', 'art', 'creative', 'design', '图像生成', '人工智能', '设计', '创意', '艺术', '灵感'], // 相关标签
+    isHot: false, // 是否热门 (根据实际情况调整)
+    isFeatured: false, // 是否特色推荐 (根据实际情况调整)
+  },
+  {
     id: 'chatgpt',
     name: 'ChatGPT',
     description: 'OpenAI 开发的领先的对话式 AI 模型。',
@@ -229,10 +241,12 @@ export const sidebarCategories = [
 
 // 侧边栏底部链接
 export const sidebarBottomLinks = [
-  { id: 'llm-ranking', 
-    name: 'LLM 排行榜', 
-    icon: 'DataLine', 
-    route: { name: 'Ranking' } },
+  {
+    id: 'llm-ranking',
+    name: 'LLM 排行榜',
+    icon: 'DataLine',
+    route: { name: 'Ranking' }
+  },
   // 示例：假设 "每日 AI 快讯" 是一个内部页面，使用 route 对象
   {
     id: 'news',
