@@ -27,37 +27,47 @@
 
 <script setup>
 import { ref } from 'vue';
+import { useRouter } from 'vue-router'; // <--- 1. 导入 useRouter
+
 // 导入侧边栏组件和数据
 import SidebarNav from './components/SidebarNav.vue';
 import {
     allTools,
     sidebarCategories,
     sidebarBottomLinks,
-    contentTabs // 确保 contentTabs 也被导入
+    // quickSearchLinks, // 确认已移除
+    contentTabs
 } from './data/tools.js';
+
+// --- 获取 router 实例 ---
+const router = useRouter(); // <--- 2. 获取 router 实例
 
 // --- 状态管理 ---
 const allToolsData = ref(allTools);
 const sidebarCategoriesData = ref(sidebarCategories);
 const sidebarBottomLinksData = ref(sidebarBottomLinks);
+// const quickSearchLinksData = ref(quickSearchLinks); // 确认已移除
 const contentTabsData = ref(contentTabs);
 
 const currentSidebarCategory = ref('all');
 const currentSidebarSearch = ref('');
 
-// 注意：如果在切换分类/搜索时需要强制返回列表页，需要引入并使用 router
-// import { useRouter } from 'vue-router';
-// const router = useRouter();
-
+// --- 修改这个方法 ---
 const updateSidebarCategory = (categoryId) => {
-  currentSidebarCategory.value = categoryId;
-  currentSidebarSearch.value = '';
-  // router.push('/'); // 取消注释以在选择分类后导航到主页
+  console.log('Category selected in App:', categoryId); // 可以加个 log 确认
+  currentSidebarCategory.value = categoryId; // 更新分类状态
+  currentSidebarSearch.value = ''; // 清空侧边栏搜索
+
+  // --- 添加路由跳转 ---
+  // 无论当前在哪，点击分类都跳转回主列表页 '/'
+  router.push('/'); // <--- 3. 添加这行代码
+  // --- 添加结束 ---
 };
 
 const updateSidebarSearch = (query) => {
     currentSidebarSearch.value = query;
-    // router.push('/'); // 取消注释以在搜索时导航到主页 (可选)
+    // 如果希望在侧边栏搜索时也跳转回主页，也可以在这里加 router.push('/')
+    // router.push('/');
 };
 
 </script>

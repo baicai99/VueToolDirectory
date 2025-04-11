@@ -51,7 +51,6 @@
 import { ref, computed, defineProps, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import ToolCard from './ToolCard.vue';
-// 移除了未使用的 Search 图标导入，保留了其他需要的图标
 import { Promotion, ArrowRight, HotWater, Link } from '@element-plus/icons-vue';
 
 // --- Props Definition ---
@@ -59,8 +58,7 @@ const props = defineProps({
   allToolsData: { type: Array, required: true },
   selectedSidebarCategory: { type: String, default: 'all' },
   sidebarSearchQuery: { type: String, default: '' },
-  // 移除了不再使用的 quickLinks prop
-  // quickLinks: { type: Array, required: true },
+  // quickLinks: { type: Array, required: true }, // 已移除
   contentTabs: { type: Array, required: true }
 });
 
@@ -68,13 +66,11 @@ const props = defineProps({
 const router = useRouter();
 
 // --- Internal State ---
-// 移除了不再使用的 contentSearchTerm ref
-// const contentSearchTerm = ref('');
-const activeContentTab = ref('常用'); // 保留 Tab 状态
+const activeContentTab = ref('常用'); // 初始值仍然可以是 '常用'
 
 // --- Helper Functions ---
-// filterToolsByQuery 仍然被侧边栏搜索使用，所以保留
 const filterToolsByQuery = (tools, query) => {
+  // ... (此函数不变) ...
   const normalizedQuery = query.trim().toLowerCase();
   if (!normalizedQuery) return tools;
   return tools.filter(tool =>
@@ -85,42 +81,37 @@ const filterToolsByQuery = (tools, query) => {
 };
 
 // --- Computed Properties ---
-// toolsFilteredBySidebar 仍然需要根据侧边栏分类和侧边栏搜索过滤
+// ... (toolsFilteredBySidebar, filteredTools, featuredTools, hotTools 计算属性不变) ...
 const toolsFilteredBySidebar = computed(() => {
-  let tools = props.allToolsData.filter(tool => !tool.isFeatured);
-  if (props.selectedSidebarCategory !== 'all') {
-    tools = tools.filter(tool => tool.category === props.selectedSidebarCategory);
-  }
-  // 仍然使用 filterToolsByQuery 来处理侧边栏搜索
-  tools = filterToolsByQuery(tools, props.sidebarSearchQuery);
-  return tools;
+    let tools = props.allToolsData.filter(tool => !tool.isFeatured);
+    if (props.selectedSidebarCategory !== 'all') {
+      tools = tools.filter(tool => tool.category === props.selectedSidebarCategory);
+    }
+    tools = filterToolsByQuery(tools, props.sidebarSearchQuery);
+    return tools;
 });
 
-// filteredTools 现在只根据侧边栏结果和内容区 Tab 过滤
 const filteredTools = computed(() => {
-  let tools = toolsFilteredBySidebar.value;
-  if (activeContentTab.value !== 'all-tags') {
-    const currentTag = activeContentTab.value;
-    tools = tools.filter(tool => tool.tags && tool.tags.includes(currentTag));
-  }
-  // 移除了根据 contentSearchTerm 的过滤步骤
-  // tools = filterToolsByQuery(tools, contentSearchTerm.value);
-  return tools;
+    let tools = toolsFilteredBySidebar.value;
+    if (activeContentTab.value !== 'all-tags') {
+      const currentTag = activeContentTab.value;
+      tools = tools.filter(tool => tool.tags && tool.tags.includes(currentTag));
+    }
+    return tools;
 });
 
-// featuredTools 和 hotTools 计算属性保持不变
 const featuredTools = computed(() => {
-  return props.allToolsData.filter(tool => tool.isFeatured === true);
+    return props.allToolsData.filter(tool => tool.isFeatured === true);
 });
 
 const hotTools = computed(() => {
-  return props.allToolsData.filter(tool => tool.isHot === true && !tool.isFeatured);
+    return props.allToolsData.filter(tool => tool.isHot === true && !tool.isFeatured);
 });
 
-// --- Methods ---
 
-// goToDetail 方法保留，用于横幅推荐点击
+// --- Methods ---
 const goToDetail = (toolId) => {
+  // ... (此方法不变) ...
   if (toolId) {
     router.push({ name: 'ToolDetail', params: { id: toolId } });
   } else {
@@ -128,27 +119,30 @@ const goToDetail = (toolId) => {
   }
 };
 
-// 移除了不再使用的 quickSearch 方法
-// const quickSearch = (baseUrl) => { ... };
-
-// handleTabClick 方法目前为空，如果不需要可以移除，暂时保留
 const handleTabClick = (tab) => {
   // console.log('Tab clicked:', tab.props.name);
 };
 
 // --- Watchers ---
-// Watchers 仍然有用，用于在侧边栏变化时重置内容区 Tab
+
+// --- 修改这个 Watcher ---
 watch(() => props.selectedSidebarCategory, (newVal, oldVal) => {
   if (newVal !== oldVal) {
-    activeContentTab.value = '常用';
-    // contentSearchTerm.value = ''; // 因为 contentSearchTerm 已移除，这行也不需要了
+    // 根据新选择的侧边栏分类 ID (newVal) 来设置内容区的 Tab
+    if (newVal === 'all') { // 'all' 是 "所有工具" 分类的 ID
+      activeContentTab.value = '常用'; // 选中 "常用" Tab
+    } else { // 其他任何分类
+      activeContentTab.value = 'all-tags'; // 选中 "全部" Tab
+    }
   }
 });
+// --- 修改结束 ---
 
+// 监听侧边栏搜索变化的 Watcher 保持不变 (或者按需调整)
 watch(() => props.sidebarSearchQuery, (newVal, oldVal) => {
   if (newVal !== oldVal) {
+    // 当在侧边栏搜索时，内容区Tab通常设为"全部"以显示所有匹配项
     activeContentTab.value = 'all-tags';
-    // contentSearchTerm.value = ''; // 因为 contentSearchTerm 已移除，这行也不需要了
   }
 });
 
