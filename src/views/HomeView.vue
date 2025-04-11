@@ -1,4 +1,3 @@
-// src/views/HomeView.vue
 <template>
   <ContentArea
     :all-tools-data="allToolsData"

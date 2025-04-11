@@ -1,9 +1,9 @@
 <template>
-    <el-main class="hot-tools-main">
-      <h1>热门工具</h1>
+    <el-main class="chat-with-me-main">
+      <h1>chat-with-me-main</h1>
       <el-divider />
       <p>此页面内容待开发...</p>
-      <p>这里将来会展示最新的热门工具。</p>
+      <p>这里将来会展示最新的 AI 相关新闻和资讯。</p>
     </el-main>
   </template>
   
@@ -12,7 +12,7 @@
   </script>
   
   <style lang="less" scoped>
-  .hot-tools-main {
+  .chat-with-me-main {
     padding: 20px; // 添加内边距，与其他视图统一
     box-sizing: border-box;
     height: 100%; // 尝试让其填充父容器高度
