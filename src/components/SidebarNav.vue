@@ -1,7 +1,6 @@
 // src/components/SidebarNav.vue
 <template>
-  <el-aside width="210px" class="sidebar-nav-aside">
-    <div class="sidebar-title"> {{ sidebarTitle }}
+  <el-aside width="210px" class="sidebar-nav-aside"> <div class="sidebar-title"> {{ sidebarTitle }}
     </div>
 
     <div class="sidebar-search-wrapper"> <el-input
@@ -25,8 +24,8 @@
     </el-menu>
 
     <div class="sidebar-bottom-links">
-       <el-menu>
-         <el-menu-item v-for="link in bottomLinks" :key="link.id" :index="link.id" @click="handleBottomLinkClick(link)">
+       <el-menu :default-active="activeCategory">
+       <el-menu-item v-for="link in bottomLinks" :key="link.id" :index="link.id" @click="handleBottomLinkClick(link)">
            <el-icon><component :is="link.icon" /></el-icon>
            <span>{{ link.name }}</span>
          </el-menu-item>
@@ -38,11 +37,11 @@
 <script setup>
 import { ref, defineProps, defineEmits } from 'vue';
 import { Search } from '@element-plus/icons-vue';
-import { useRouter } from 'vue-router'; // <--- 导入 useRouter
+import { useRouter } from 'vue-router';
 
 const sidebarTitle = import.meta.env.VITE_APP_NAME || '收藏夹';
 
-// --- Props 和 Emits 不变 ---
+// --- Props 和 Emits ---
 const props = defineProps({
   categories: { type: Array, required: true },
   bottomLinks: { type: Array, required: true },
@@ -51,100 +50,91 @@ const props = defineProps({
 const emit = defineEmits(['categorySelected', 'sidebarSearch']);
 
 // --- 获取 router 实例 ---
-const router = useRouter(); // <--- 获取 router 实例
+const router = useRouter();
 
-// --- 内部状态 不变 ---
+// --- 内部状态 ---
 const sidebarSearchTerm = ref('');
+// activeCategory 同时被两个菜单用于高亮状态
 const activeCategory = ref(props.initialCategory);
 
 // --- 方法 ---
-// handleSelectCategory 和 handleSidebarSearch 不变
 const handleSelectCategory = (index) => {
-  activeCategory.value = index;
-  emit('categorySelected', index);
+  activeCategory.value = index; // 更新状态
+  emit('categorySelected', index); // 通知父组件
 };
+
 const handleSidebarSearch = () => {
   emit('sidebarSearch', sidebarSearchTerm.value);
 };
 
-// --- 新的处理底部链接点击的方法 ---
 const handleBottomLinkClick = (link) => {
-  // --- 添加日志 ---
-  console.log("点击了底部链接对象:", JSON.stringify(link, null, 2)); // 打印出完整的 link 对象看看结构
-  // --- 添加结束 ---
-
+  // console.log("点击了底部链接对象:", JSON.stringify(link, null, 2)); // 保留或移除调试日志
   if (link.route) {
-    // --- 添加日志 ---
-    console.log("检测到 route 属性，尝试导航到:", link.route);
-    // --- 添加结束 ---
-    // activeCategory.value = link.id; // 建议不修改主分类高亮
+    // console.log("检测到 route 属性，尝试导航到:", link.route); // 保留或移除调试日志
+    activeCategory.value = link.id; // 点击底部链接也更新高亮状态
     router.push(link.route);
   } else if (link.url && link.url !== '#') {
-    // --- 添加日志 ---
-    console.log("未检测到 route 属性，尝试打开外部链接:", link.url);
-    // --- 添加结束 ---
+    // console.log("未检测到 route 属性，尝试打开外部链接:", link.url); // 保留或移除调试日志
     window.open(link.url, '_blank');
   } else {
-    console.log(`点击了底部链接 "${link.name}" 但没有定义操作。`);
+    console.log(`Clicked bottom link "${link.name}" with no defined action.`);
     if (link.url === '#hottopics') {
        console.log("需要滚动到热门工具 (功能待实现)");
+       // emit('scrollToSection', 'hot-tools');
     }
   }
 };
-// --- 删除了旧的 gotoLink 方法 ---
 
 </script>
 
 <style lang="less" scoped>
-.sidebar-nav-aside { // 使用类名作为根选择器
+/* 样式与你提供的一致 */
+.sidebar-nav-aside {
   background-color: #FFF;
   border-right: 1px solid #e6e6e6;
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
   height: 100vh;
-  box-sizing: border-box; // 包含边框和内边距
+  box-sizing: border-box;
 
-  .sidebar-title { // 标题样式
+  .sidebar-title {
     padding: 15px;
     text-align: center;
     font-size: 1.2em;
     font-weight: bold;
-    flex-shrink: 0; // 防止被压缩
+    flex-shrink: 0;
   }
 
-  .sidebar-search-wrapper { // 搜索框容器样式
+  .sidebar-search-wrapper {
     padding: 0 15px 15px;
     flex-shrink: 0;
   }
 
-  .el-menu { // 适用于两个菜单
+  .el-menu {
     border-right: none;
-    flex-shrink: 0; // 防止菜单被压缩（如果内容过多）
-
-    // 如果希望主菜单可以滚动而底部固定，需要调整布局
-    // 例如，让主菜单的容器 overflow-y: auto; flex-grow: 1;
+    flex-shrink: 0;
   }
 
-  .el-menu-vertical-demo { // 主分类菜单特定样式（如果需要）
-     flex-grow: 1; // 让主菜单占据剩余空间
-     overflow-y: auto; // 如果分类过多允许滚动
+  .el-menu-vertical-demo { // 主分类菜单
+     flex-grow: 1;
+     overflow-y: auto;
   }
 
   .el-menu-item {
     height: 50px;
     line-height: 50px;
-    .el-icon { // 嵌套图标样式
+    .el-icon {
       margin-right: 8px;
     }
   }
 
   .sidebar-bottom-links {
-      margin-top: auto; // 推到底部
+      margin-top: auto;
       padding: 10px 0;
       border-top: 1px solid #eee;
-      flex-shrink: 0; // 防止被压缩
-      .el-menu-item { // 嵌套底部链接项样式
+      flex-shrink: 0;
+      .el-menu-item { // 底部链接项
         height: 40px;
         line-height: 40px;
         font-size: 0.9em;
