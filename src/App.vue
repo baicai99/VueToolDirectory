@@ -1,3 +1,4 @@
+// src/App.vue
 <template>
   <el-container class="app-container">
     <SidebarNav
@@ -8,95 +9,89 @@
       @sidebarSearch="updateSidebarSearch"
     />
 
-    <ContentArea
+    <router-view
       :all-tools-data="allToolsData"
       :selected-sidebar-category="currentSidebarCategory"
       :sidebar-search-query="currentSidebarSearch"
       :quick-links="quickSearchLinksData"
       :content-tabs="contentTabsData"
-    />
+      v-slot="{ Component }"
+    >
+      <transition name="fade" mode="out-in">
+        <component :is="Component" />
+      </transition>
+    </router-view>
+
   </el-container>
 </template>
 
 <script setup>
 import { ref } from 'vue';
+// 导入侧边栏组件和数据
 import SidebarNav from './components/SidebarNav.vue';
-import ContentArea from './components/ContentArea.vue';
-// 从数据文件中导入数据
 import {
     allTools,
     sidebarCategories,
     sidebarBottomLinks,
     quickSearchLinks,
-    contentTabs
+    contentTabs // 确保 contentTabs 也被导入
 } from './data/tools.js';
 
-// --- 响应式状态 ---
-// 将导入的数据赋给响应式引用或直接使用
+// --- 状态管理 ---
 const allToolsData = ref(allTools);
 const sidebarCategoriesData = ref(sidebarCategories);
 const sidebarBottomLinksData = ref(sidebarBottomLinks);
 const quickSearchLinksData = ref(quickSearchLinks);
 const contentTabsData = ref(contentTabs);
 
-// 当前侧边栏选中的分类 ID ('all', 'AI Tools', etc.)
 const currentSidebarCategory = ref('all');
-// 当前侧边栏搜索框的查询词
 const currentSidebarSearch = ref('');
 
-// --- 方法 ---
-// 更新侧边栏选中的分类
+// 注意：如果在切换分类/搜索时需要强制返回列表页，需要引入并使用 router
+// import { useRouter } from 'vue-router';
+// const router = useRouter();
+
 const updateSidebarCategory = (categoryId) => {
   currentSidebarCategory.value = categoryId;
-  currentSidebarSearch.value = ''; // 清空侧边栏搜索，因为分类已改变
+  currentSidebarSearch.value = '';
+  // router.push('/'); // 取消注释以在选择分类后导航到主页
 };
 
-// 更新侧边栏搜索查询
 const updateSidebarSearch = (query) => {
     currentSidebarSearch.value = query;
-    // 当在侧边栏搜索时，我们可能希望内容区自动切换到“所有工具”的视角
-    // 但也可以让 ContentArea 内部处理，这里暂时不强制改变 currentSidebarCategory
-    // 如果需要强制改变分类为 'all'，取消下面的注释
-    // currentSidebarCategory.value = 'all';
+    // router.push('/'); // 取消注释以在搜索时导航到主页 (可选)
 };
 
 </script>
 
 <style lang="less">
-
-/* App.vue 的全局样式或布局已移至 main.css */
-.app-container {
-  height: 100vh;
-  overflow: hidden; /* 防止外层容器出现滚动条 */
-}
-// 注意：这个 style 块没有 scoped! 会影响全局
-// 如果不需要全局重置，可以省略这个块
 body {
   margin: 0;
+  /* 使用一个常见且兼容性较好的字体栈 */
   font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB',
     'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-
-// #app 和 el-container 的高度，确保布局撑满
 #app, .app-container, .el-container {
-  height: 100vh;
+  height: 100vh; /* 添加分号 */
 }
-
-// 可以在这里添加其他全局基础样式，例如链接默认样式等
 </style>
 
 <style lang="less" scoped>
-/* App.vue 组件自身的布局样式 */
 .app-container {
-  display: flex; // 虽然el-container默认可能就是flex，明确一下无妨
-  overflow: hidden; /* 防止外层容器出现滚动条 */
+  display: flex;
+  overflow: hidden;
 }
 
-/*
-  之前 main.css 中的 .fixed-aside 和 .main-content-area 的样式
-  现在分别移动到 SidebarNav.vue 和 ContentArea.vue 中，
-  因为它们是直接应用在这些组件根元素上的样式。
-*/
+/* 路由过渡动画 */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
 </style>
