@@ -1,7 +1,7 @@
 <template>
     <el-aside width="210px" class="fixed-aside">
       <div style="padding: 15px; text-align: center; font-size: 1.2em; font-weight: bold;">
-        收藏夹
+        {{ sidebarTitle }}
       </div>
   
       <div style="padding: 0 15px 15px;">
@@ -39,6 +39,8 @@
   <script setup>
   import { ref, defineProps, defineEmits } from 'vue';
   import { Search } from '@element-plus/icons-vue'; // 显式引入图标
+  
+  const sidebarTitle = import.meta.env.VITE_APP_NAME || '收藏夹'; // 提供备用名
   
   // 定义 props 和 emits
   const props = defineProps({
