@@ -7,25 +7,24 @@
     </el-tabs>
 
     <div v-if="featuredTools.length > 0" class="featured-banner-container" style="margin-top: 20px;">
-       <div
-          v-for="tool in featuredTools"
-          :key="tool.id"
-          class="banner-recommendation"
-          @click="goToDetail(tool.id)"
-          style="cursor: pointer;"
-       >
-           <span class="banner-content">
-             <el-icon><Promotion /></el-icon> {{ tool.name }} - {{ tool.description }}
-           </span>
-           <el-button type="primary" link>查看详情 <el-icon><ArrowRight /></el-icon></el-button>
-       </div>
+      <div v-for="tool in featuredTools" :key="tool.id" class="banner-recommendation" @click="openToolDetail(tool)"
+        style="cursor: pointer;">
+        <span class="banner-content">
+          <el-icon>
+            <Promotion />
+          </el-icon> {{ tool.name }} - {{ tool.description }}
+        </span>
+        <el-button type="primary" link>查看详情 <el-icon>
+            <ArrowRight />
+          </el-icon></el-button>
+      </div>
     </div>
 
     <el-divider v-if="featuredTools.length > 0" class="section-divider" />
 
     <el-row :gutter="20" class="tools-grid">
       <el-col v-for="tool in filteredTools" :key="tool.id" :xs="24" :sm="12" :md="8" :lg="6" :xl="4">
-        <ToolCard :tool="tool" />
+        <ToolCard :tool="tool" @open-detail="openToolDetail" />
       </el-col>
       <el-col v-if="filteredTools.length === 0" class="empty-state">
         <el-empty description="没有找到匹配的工具" />
@@ -37,28 +36,30 @@
       </el-icon> 热门工具</el-divider>
     <el-row :gutter="20" class="hot-tools-grid">
       <el-col v-for="tool in hotTools" :key="'hot-' + tool.id" :xs="24" :sm="12" :md="8" :lg="6" :xl="4">
-        <ToolCard :tool="tool" />
+        <ToolCard :tool="tool" @open-detail="openToolDetail" />
       </el-col>
       <el-col v-if="hotTools.length === 0" class="empty-state">
         <el-empty description="暂无热门工具" />
       </el-col>
     </el-row>
 
+    <!-- 弹出式工具详情组件 -->
+    <ToolDetail v-if="selectedTool" :tool="selectedTool" @close="closeToolDetail" />
   </el-main>
 </template>
 
 <script setup>
 import { ref, computed, defineProps, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import ToolCard from './ToolCard.vue';
-import { Promotion, ArrowRight, HotWater, Link } from '@element-plus/icons-vue';
+import ToolCard from '../tools/ToolCard.vue';
+import ToolDetail from '../tools/ToolDetail.vue';
+import { Promotion, ArrowRight, HotWater } from '@element-plus/icons-vue';
 
 // --- Props Definition ---
 const props = defineProps({
   allToolsData: { type: Array, required: true },
   selectedSidebarCategory: { type: String, default: 'all' },
   sidebarSearchQuery: { type: String, default: '' },
-  // quickLinks: { type: Array, required: true }, // 已移除
   contentTabs: { type: Array, required: true }
 });
 
@@ -67,6 +68,7 @@ const router = useRouter();
 
 // --- Internal State ---
 const activeContentTab = ref('常用'); // 初始值仍然可以是 '常用'
+const selectedTool = ref(null); // 当前选中的工具，用于显示详情
 
 // --- Helper Functions ---
 const filterToolsByQuery = (tools, query) => {
@@ -81,42 +83,43 @@ const filterToolsByQuery = (tools, query) => {
 };
 
 // --- Computed Properties ---
-// ... (toolsFilteredBySidebar, filteredTools, featuredTools, hotTools 计算属性不变) ...
 const toolsFilteredBySidebar = computed(() => {
-    let tools = props.allToolsData.filter(tool => !tool.isFeatured);
-    if (props.selectedSidebarCategory !== 'all') {
-      tools = tools.filter(tool => tool.category === props.selectedSidebarCategory);
-    }
-    tools = filterToolsByQuery(tools, props.sidebarSearchQuery);
-    return tools;
+  let tools = props.allToolsData.filter(tool => !tool.isFeatured);
+  if (props.selectedSidebarCategory !== 'all') {
+    tools = tools.filter(tool => tool.category === props.selectedSidebarCategory);
+  }
+  tools = filterToolsByQuery(tools, props.sidebarSearchQuery);
+  return tools;
 });
 
 const filteredTools = computed(() => {
-    let tools = toolsFilteredBySidebar.value;
-    if (activeContentTab.value !== 'all-tags') {
-      const currentTag = activeContentTab.value;
-      tools = tools.filter(tool => tool.tags && tool.tags.includes(currentTag));
-    }
-    return tools;
+  let tools = toolsFilteredBySidebar.value;
+  if (activeContentTab.value !== 'all-tags') {
+    const currentTag = activeContentTab.value;
+    tools = tools.filter(tool => tool.tags && tool.tags.includes(currentTag));
+  }
+  return tools;
 });
 
 const featuredTools = computed(() => {
-    return props.allToolsData.filter(tool => tool.isFeatured === true);
+  return props.allToolsData.filter(tool => tool.isFeatured === true);
 });
 
 const hotTools = computed(() => {
-    return props.allToolsData.filter(tool => tool.isHot === true && !tool.isFeatured);
+  return props.allToolsData.filter(tool => tool.isHot === true && !tool.isFeatured);
 });
 
-
 // --- Methods ---
-const goToDetail = (toolId) => {
-  // ... (此方法不变) ...
-  if (toolId) {
-    router.push({ name: 'ToolDetail', params: { id: toolId } });
-  } else {
-    console.error('Featured tool ID is missing, cannot navigate.');
-  }
+// 打开工具详情弹窗
+const openToolDetail = (tool) => {
+  selectedTool.value = tool;
+  document.body.style.overflow = 'hidden'; // 防止背景滚动
+};
+
+// 关闭工具详情弹窗
+const closeToolDetail = () => {
+  selectedTool.value = null;
+  document.body.style.overflow = ''; // 恢复背景滚动
 };
 
 const handleTabClick = (tab) => {
@@ -124,8 +127,6 @@ const handleTabClick = (tab) => {
 };
 
 // --- Watchers ---
-
-// --- 修改这个 Watcher ---
 watch(() => props.selectedSidebarCategory, (newVal, oldVal) => {
   if (newVal !== oldVal) {
     // 根据新选择的侧边栏分类 ID (newVal) 来设置内容区的 Tab
@@ -136,7 +137,6 @@ watch(() => props.selectedSidebarCategory, (newVal, oldVal) => {
     }
   }
 });
-// --- 修改结束 ---
 
 // 监听侧边栏搜索变化的 Watcher 保持不变 (或者按需调整)
 watch(() => props.sidebarSearchQuery, (newVal, oldVal) => {
@@ -153,9 +153,12 @@ watch(() => props.sidebarSearchQuery, (newVal, oldVal) => {
 .content-area-main {
   padding: 20px;
   box-sizing: border-box;
-  overflow-y: auto; /* 内容区独立滚动 */
-  height: 100vh; /* 确保内容区高度占满视口 */
-  background-color: #f0f2f5; /* 内容区背景色 */
+  overflow-y: auto;
+  /* 内容区独立滚动 */
+  height: 100vh;
+  /* 确保内容区高度占满视口 */
+  background-color: #f0f2f5;
+  /* 内容区背景色 */
 }
 
 /* 移除了 .search-input 和 .quick-search-container 的样式 */
@@ -208,7 +211,7 @@ watch(() => props.sidebarSearchQuery, (newVal, oldVal) => {
   }
 
   .el-button {
-     flex-shrink: 0;
+    flex-shrink: 0;
   }
 }
 
@@ -239,5 +242,51 @@ watch(() => props.sidebarSearchQuery, (newVal, oldVal) => {
   color: #909399;
   width: 100%;
   padding: 40px 0;
+}
+
+/* 移动端适配样式 */
+@media (max-width: 768px) {
+  .content-area-main {
+    padding: 10px;
+    padding-top: 70px;
+    /* 为顶部移动菜单留出空间 */
+    height: 100%;
+  }
+
+  .content-tabs {
+    :deep(.el-tabs__nav-wrap) {
+      padding: 0 5px;
+    }
+
+    :deep(.el-tabs__item) {
+      padding: 0 10px;
+    }
+  }
+
+  .banner-recommendation {
+    padding: 10px;
+    flex-direction: column;
+    align-items: flex-start;
+
+    .banner-content {
+      margin-bottom: 10px;
+      width: 100%;
+    }
+  }
+
+  .tools-grid,
+  .hot-tools-grid {
+
+    /* 在移动设备上减小卡片之间的间距 */
+    .el-row {
+      margin-left: -5px !important;
+      margin-right: -5px !important;
+    }
+
+    .el-col {
+      padding-left: 5px !important;
+      padding-right: 5px !important;
+    }
+  }
 }
 </style>

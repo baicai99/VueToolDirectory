@@ -1,5 +1,5 @@
 <template>
-  <el-card shadow="hover" class="tool-card" @click="goToDetail">
+  <el-card shadow="hover" class="tool-card" @click="showToolDetail">
     <img :src="resolvedIconUrl" :alt="tool.name" class="tool-card-icon" @error="handleImageError" />
     <div class="tool-card-content">
       <div class="tool-card-name">{{ tool.name }}</div>
@@ -9,10 +9,9 @@
 </template>
 
 <script setup>
-import { defineProps, computed } from 'vue'; // <--- 导入 computed
-import { useRouter } from 'vue-router';
-// 引入默认图标 - 这是可靠的，因为是直接 import
-import defaultIconPath from '../assets/icons/tool-icon-placeholder.png';
+import { defineProps, computed, ref } from 'vue';
+import ToolDetail from './ToolDetail.vue';
+import defaultIconPath from '../../assets/icons/tool-icon-placeholder.png';
 
 // --- 使用 import.meta.glob 获取所有可能的图标 ---
 // 注意路径：'/src/assets/icons/...' - 这个路径模式需要匹配 tools.js 中的格式
@@ -27,8 +26,11 @@ const props = defineProps({
   },
 });
 
-const router = useRouter();
 const defaultIcon = defaultIconPath; // 默认图标路径
+const showDetail = ref(false); // 控制详情组件的显示
+
+// 向父组件发送事件
+const emit = defineEmits(['open-detail']);
 
 // --- 计算属性：根据 tool.icon 解析正确的 URL ---
 const resolvedIconUrl = computed(() => {
@@ -46,7 +48,6 @@ const resolvedIconUrl = computed(() => {
 
   if (module && module.default) {
     // 如果在 glob 结果中找到了匹配的模块，返回它处理后的 URL (通常在 .default 中)
-    // console.log(`Resolved icon for ${props.tool?.name}: ${module.default}`);
     return module.default;
   } else {
     // 如果在 glob 结果中没找到 (可能文件不存在或路径/格式不匹配)
@@ -55,12 +56,10 @@ const resolvedIconUrl = computed(() => {
   }
 });
 
-
-const goToDetail = () => {
-  if (props.tool.id) {
-    router.push({ name: 'ToolDetail', params: { id: props.tool.id } });
-  } else {
-    console.error('Tool ID is missing, cannot navigate to details.');
+// 修改为显示工具详情的函数
+const showToolDetail = () => {
+  if (props.tool) {
+    emit('open-detail', props.tool);
   }
 };
 
@@ -70,7 +69,7 @@ const handleImageError = (event) => {
   console.warn(`Failed to load image (even after resolving): ${event.target.src}. Falling back to default.`);
   // 避免无限循环：如果 defaultIcon 自身也加载失败，不再尝试设置
   if (event.target.src !== defaultIcon) {
-      event.target.src = defaultIcon;
+    event.target.src = defaultIcon;
   }
 };
 
@@ -129,6 +128,36 @@ const handleImageError = (event) => {
       line-height: 1.5;
       max-height: calc(1.5em * 2);
       min-height: 2.5em;
+    }
+  }
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .tool-card {
+    margin-bottom: 16px;
+
+    :deep(.el-card__body) {
+      padding: 12px;
+    }
+
+    .tool-card-icon {
+      width: 34px;
+      height: 34px;
+      margin-right: 12px;
+    }
+
+    .tool-card-content {
+      .tool-card-name {
+        font-size: 0.95em;
+        margin-bottom: 3px;
+      }
+
+      .tool-card-desc {
+        font-size: 0.8em;
+        line-height: 1.4;
+        max-height: calc(1.4em * 2);
+      }
     }
   }
 }

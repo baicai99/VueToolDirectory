@@ -1,15 +1,10 @@
 <template>
-  <ContentArea
-    :all-tools-data="allToolsData"
-    :selected-sidebar-category="selectedSidebarCategory"
-    :sidebar-search-query="sidebarSearchQuery"
-    :quick-links="quickLinks"
-    :content-tabs="contentTabs"
-  />
+  <ContentArea :all-tools-data="allToolsData" :selected-sidebar-category="selectedSidebarCategory"
+    :sidebar-search-query="sidebarSearchQuery" :quick-links="quickLinks" :content-tabs="contentTabs" />
 </template>
 
 <script setup>
-import ContentArea from '../components/ContentArea.vue';
+import ContentArea from '../components/layout/ContentArea.vue';
 
 // 接收从 App.vue <router-view> 传递过来的 props
 defineProps({

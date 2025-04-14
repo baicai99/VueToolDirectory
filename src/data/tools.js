@@ -262,7 +262,7 @@ export const sidebarBottomLinks = [
   // 示例：假设 "每日 AI 快讯" 是一个内部页面，使用 route 对象
   {
     id: 'news',
-    name: '每日 AI 快讯',
+    name: '每周 AI 快讯',
     icon: 'DataLine',
     route: { name: 'News' } // 指向名为 'News' 的路由
   },
