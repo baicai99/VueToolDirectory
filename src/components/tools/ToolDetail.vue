@@ -1,58 +1,61 @@
 <template>
-    <div class="tool-detail-overlay" @click.self="closeDetail">
-        <div class="tool-detail-container">
-            <el-button class="close-button" circle plain @click="closeDetail">
-                <el-icon>
-                    <Close />
-                </el-icon>
-            </el-button>
+    <!-- 将弹出层提升到App之外，避免被其他元素影响 -->
+    <teleport to="body">
+        <div class="tool-detail-overlay" @click.self="closeDetail">
+            <div class="tool-detail-container">
+                <el-button class="close-button" circle plain @click="closeDetail">
+                    <el-icon>
+                        <Close />
+                    </el-icon>
+                </el-button>
 
-            <div v-if="tool" class="tool-detail-content">
-                <div class="tool-header">
-                    <img :src="resolvedIconUrl" :alt="tool.name" class="detail-icon" @error="handleImageError" />
-                    <div class="tool-header-info">
-                        <h2>{{ tool.name }}</h2>
+                <div v-if="tool" class="tool-detail-content">
+                    <div class="tool-header">
+                        <img :src="resolvedIconUrl" :alt="tool.name" class="detail-icon" @error="handleImageError" />
+                        <div class="tool-header-info">
+                            <h2>{{ tool.name }}</h2>
 
-                        <!-- 移除条件渲染，使用计算属性确保始终有值 -->
-                        <div class="detail-tags">
-                            <el-tag v-for="tag in toolTags" :key="tag" type="info" size="small">
-                                {{ tag }}
-                            </el-tag>
+                            <!-- 移除条件渲染，使用计算属性确保始终有值 -->
+                            <div class="detail-tags">
+                                <el-tag v-for="tag in toolTags" :key="tag" type="info" size="small">
+                                    {{ tag }}
+                                </el-tag>
+                            </div>
+
+                            <div class="detail-link" v-if="tool.url">
+                                <el-button type="primary" size="small" @click="openToolWebsite">
+                                    访问官网 <el-icon>
+                                        <Link />
+                                    </el-icon>
+                                </el-button>
+                            </div>
                         </div>
+                    </div>
 
-                        <div class="detail-link" v-if="tool.url">
-                            <el-button type="primary" size="small" @click="openToolWebsite">
-                                访问官网 <el-icon>
-                                    <Link />
-                                </el-icon>
-                            </el-button>
-                        </div>
+                    <el-divider />
+
+                    <div class="tool-description">
+                        <h3>工具描述</h3>
+                        <p>{{ tool.longDescription || tool.description || '暂无详细描述。' }}</p>
+                    </div>
+
+                    <div class="tool-screenshots" v-if="tool.screenshots && tool.screenshots.length">
+                        <h3>工具截图</h3>
+                        <el-carousel :interval="4000" type="card" height="250px">
+                            <el-carousel-item v-for="(screenshot, index) in tool.screenshots" :key="index">
+                                <el-image :src="screenshot" fit="contain" :preview-src-list="tool.screenshots"
+                                    :initial-index="index" />
+                            </el-carousel-item>
+                        </el-carousel>
                     </div>
                 </div>
 
-                <el-divider />
-
-                <div class="tool-description">
-                    <h3>工具描述</h3>
-                    <p>{{ tool.longDescription || tool.description || '暂无详细描述。' }}</p>
+                <div v-else class="tool-detail-loading">
+                    <el-empty description="未找到该工具的信息" />
                 </div>
-
-                <div class="tool-screenshots" v-if="tool.screenshots && tool.screenshots.length">
-                    <h3>工具截图</h3>
-                    <el-carousel :interval="4000" type="card" height="250px">
-                        <el-carousel-item v-for="(screenshot, index) in tool.screenshots" :key="index">
-                            <el-image :src="screenshot" fit="contain" :preview-src-list="tool.screenshots"
-                                :initial-index="index" />
-                        </el-carousel-item>
-                    </el-carousel>
-                </div>
-            </div>
-
-            <div v-else class="tool-detail-loading">
-                <el-empty description="未找到该工具的信息" />
             </div>
         </div>
-    </div>
+    </teleport>
 </template>
 
 <script setup>
@@ -137,9 +140,13 @@ const openToolWebsite = () => {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
+    z-index: 9999;
     padding: 20px;
     box-sizing: border-box;
+    transform: translateZ(0);
+    will-change: transform;
+    isolation: isolate;
+    pointer-events: auto;
 }
 
 .tool-detail-container {
@@ -153,6 +160,8 @@ const openToolWebsite = () => {
     display: flex;
     flex-direction: column; // 使用flex布局，方便固定顶部
     overflow: hidden; // 修改为hidden，内部内容区域单独设置滚动
+    transform: translateZ(1px);
+    will-change: transform;
 
     &::-webkit-scrollbar {
         width: 6px;
@@ -165,7 +174,7 @@ const openToolWebsite = () => {
 }
 
 .close-button {
-    position: absolute; // 改为absolute定位
+    position: absolute;
     top: 16px;
     right: 16px;
     z-index: 1010;
@@ -184,13 +193,14 @@ const openToolWebsite = () => {
 }
 
 .tool-detail-content {
-    padding: 24px 32px 32px;
     overflow-y: auto; // 使内容区域可以独立滚动
     max-height: calc(90vh - 32px); // 考虑padding的高度限制
     scrollbar-width: thin;
-
-    // 添加顶部padding，防止内容被关闭按钮遮挡
-    padding-top: 48px;
+    position: relative;
+    z-index: 1;
+    padding: 24px 32px 32px;
+    // 减小顶部padding，增加视觉空间
+    padding-top: 40px;
 
     .tool-header {
         display: flex;
@@ -290,22 +300,37 @@ const openToolWebsite = () => {
 /* 移动端适配样式 */
 @media (max-width: 768px) {
     .tool-detail-overlay {
-        padding: 10px;
+        padding: 5%;
+        /* 为Chrome搜索框预留空间，将内容下移 */
+        padding-top: 8%;
+        /* 为底部导航栏预留空间 */
+        padding-bottom: 10%;
+        align-items: flex-start; /* 顶部对齐而不是居中 */
     }
 
     .tool-detail-container {
-        max-height: 95vh;
+        max-height: 80vh; /* 减小高度以适应顶部和底部空间 */
+        z-index: 10000;
+        position: relative;
+        /* 距离屏幕底部更远一些 */
+        margin-bottom: 20px;
+
+        /* 在移动端Chrome浏览器中，添加这些属性可以帮助解决层叠问题 */
+        transform: translate3d(0, 0, 0);
+        backface-visibility: hidden;
+        perspective: 1000px;
     }
 
     .close-button {
         top: 10px;
         right: 10px;
+        z-index: 10001; /* 确保关闭按钮在最上层 */
     }
 
     .tool-detail-content {
         padding: 16px 20px 20px;
-        max-height: calc(95vh - 20px);
-        padding-top: 40px; // 移动端顶部padding调小
+        max-height: calc(80vh - 40px); /* 调整为新的高度限制 */
+        padding-top: 36px; // 调整顶部padding
 
         .tool-header {
             flex-direction: column;

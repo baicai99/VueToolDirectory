@@ -354,20 +354,34 @@ const changeNews = (newsItem) => {
 /* 移动端适配样式 */
 @media (max-width: 768px) {
   .news-detail-overlay {
-    padding: 10px;
+    padding: 5%;
+    /* 为Chrome搜索框预留空间，将内容下移 */
+    padding-top: 17%;
+    align-items: flex-start; /* 顶部对齐而不是居中 */
+    z-index: 1000;
   }
 
   .news-detail-container {
-    max-height: 95vh;
+    max-height: 80vh; /* 减小高度以适应顶部和底部空间 */
+    z-index: 1001;
+    position: relative;
+    /* 距离屏幕底部更远一些 */
+    margin-bottom: 20px;
+
+    /* 在移动端Chrome浏览器中，添加这些属性可以帮助解决层叠问题 */
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    perspective: 1000px;
   }
 
   .close-button {
     top: 10px;
     right: 10px;
+    z-index: 1010; /* 确保关闭按钮在最上层 */
   }
 
   .news-detail-content {
-    max-height: calc(95vh - 20px);
+    max-height: calc(80vh - 40px); /* 调整为新的高度限制 */
   }
 }
 </style>

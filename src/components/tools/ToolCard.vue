@@ -81,6 +81,8 @@ const handleImageError = (event) => {
   margin-bottom: 20px;
   cursor: pointer;
   transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  /* 添加固定高度 */
+  height: 100px;
 
   // 只在桌面端应用hover效果
   @media (min-width: 769px) {
@@ -96,6 +98,9 @@ const handleImageError = (event) => {
     align-items: center;
     width: 100%;
     box-sizing: border-box;
+    /* 确保el-card__body有固定高度 */
+    height: 100%;
+    min-height: 100px;
   }
 
   .tool-card-icon {
@@ -110,6 +115,10 @@ const handleImageError = (event) => {
   .tool-card-content {
     flex-grow: 1;
     overflow: hidden;
+    /* 确保内容区域高度固定 */
+    height: 70px;
+    display: flex;
+    flex-direction: column;
 
     .tool-card-name {
       font-weight: bold;
@@ -129,8 +138,9 @@ const handleImageError = (event) => {
       overflow: hidden;
       text-overflow: ellipsis;
       line-height: 1.5;
-      max-height: calc(1.5em * 2);
-      min-height: 2.5em;
+      /* 设置固定高度而不是最大/最小高度 */
+      height: 3em;
+      flex-grow: 1;
     }
   }
 }
@@ -139,6 +149,8 @@ const handleImageError = (event) => {
 @media (max-width: 768px) {
   .tool-card {
     margin-bottom: 16px;
+    /* 为移动端也设置固定高度 */
+    height: 90px;
 
     // 移动端禁用hover效果
     &:hover {
@@ -148,6 +160,9 @@ const handleImageError = (event) => {
 
     :deep(.el-card__body) {
       padding: 12px;
+      /* 确保移动端卡片body也有固定高度 */
+      height: 100%;
+      min-height: 90px;
     }
 
     .tool-card-icon {
@@ -157,6 +172,11 @@ const handleImageError = (event) => {
     }
 
     .tool-card-content {
+      /* 确保移动端内容区域也有固定高度 */
+      height: 66px;
+      display: flex;
+      flex-direction: column;
+
       .tool-card-name {
         font-size: 0.95em;
         margin-bottom: 3px;
@@ -165,7 +185,9 @@ const handleImageError = (event) => {
       .tool-card-desc {
         font-size: 0.8em;
         line-height: 1.4;
-        max-height: calc(1.4em * 2);
+        /* 设置固定高度 */
+        height: 2.8em;
+        flex-grow: 1;
       }
     }
   }

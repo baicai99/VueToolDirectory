@@ -153,12 +153,19 @@ watch(() => props.sidebarSearchQuery, (newVal, oldVal) => {
 .content-area-main {
   padding: 20px;
   box-sizing: border-box;
-  overflow-y: auto;
-  /* 内容区独立滚动 */
-  height: 100vh;
-  /* 确保内容区高度占满视口 */
+  /* 修改滚动区域设置 */
+  overflow-y: visible;
+  /* 更改为visible，让内容溢出到父容器 */
+  height: auto;
+  /* 高度自适应 */
+  min-height: 100%;
+  /* 保证至少占满容器 */
   background-color: #f0f2f5;
-  /* 内容区背景色 */
+  /* 设置触摸操作允许滚动 */
+  touch-action: pan-x pan-y;
+  /* 添加overscroll-behavior阻止滚动链 */
+  overscroll-behavior: none;
+  /* 确保没有内部边距限制内容 */
 }
 
 /* 移除了 .search-input 和 .quick-search-container 的样式 */
@@ -248,9 +255,16 @@ watch(() => props.sidebarSearchQuery, (newVal, oldVal) => {
 @media (max-width: 768px) {
   .content-area-main {
     padding: 10px;
-    padding-top: 70px;
+    padding-top: 30px;
     /* 为顶部移动菜单留出空间 */
-    height: 100%;
+    height: auto !important;
+    /* 强制使用自动高度 */
+    min-height: calc(100vh - 60px);
+    /* 视口高度减去头部高度 */
+    overflow-y: visible !important;
+    /* 确保内容可以溢出 */
+    overscroll-behavior: none !important;
+    /* 移动端也确保阻止滚动链 */
   }
 
   .content-tabs {

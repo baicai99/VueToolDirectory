@@ -29,7 +29,7 @@ body {
       flex-direction: column;
       background-color: #ffffff; /* 或其他背景色 */
       box-shadow: 2px 0 6px rgba(0, 21, 41, 0.08);
-      overflow-y: auto; /* 如果内容过多则允许滚动 */
+      overscroll-behavior: contain; /* 阻止滚动事件冒泡到外部 */
   }
   
   /* 主内容区，需要留出侧边栏空间 */

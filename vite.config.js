@@ -7,5 +7,8 @@ export default defineConfig({
   base: './', // <--- 添加这一行
   build: {
     // 其他 build 配置...
-  }
+  },
+  server: {
+    host: true, // 或者 host: '0.0.0.0'
+  },
 })
