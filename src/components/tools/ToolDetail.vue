@@ -136,7 +136,9 @@ const openToolWebsite = () => {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -305,11 +307,13 @@ const openToolWebsite = () => {
         padding-top: 8%;
         /* 为底部导航栏预留空间 */
         padding-bottom: 10%;
-        align-items: flex-start; /* 顶部对齐而不是居中 */
+        align-items: flex-start;
+        /* 顶部对齐而不是居中 */
     }
 
     .tool-detail-container {
-        max-height: 80vh; /* 减小高度以适应顶部和底部空间 */
+        max-height: 80vh;
+        /* 减小高度以适应顶部和底部空间 */
         z-index: 10000;
         position: relative;
         /* 距离屏幕底部更远一些 */
@@ -324,12 +328,14 @@ const openToolWebsite = () => {
     .close-button {
         top: 10px;
         right: 10px;
-        z-index: 10001; /* 确保关闭按钮在最上层 */
+        z-index: 10001;
+        /* 确保关闭按钮在最上层 */
     }
 
     .tool-detail-content {
         padding: 16px 20px 20px;
-        max-height: calc(80vh - 40px); /* 调整为新的高度限制 */
+        max-height: calc(80vh - 40px);
+        /* 调整为新的高度限制 */
         padding-top: 36px; // 调整顶部padding
 
         .tool-header {

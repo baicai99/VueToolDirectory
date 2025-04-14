@@ -2,90 +2,108 @@
 body {
     margin: 0;
     font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB',
-      'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+        'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-  }
-  
-  #app {
-    height: 100vh; /* 使根元素占满视口高度 */
-    display: flex; /* 使用 flex 布局 */
-  }
-  
-  /* 修正 Element Plus 容器高度 */
-  .el-container {
-      height: 100%;
-  }
-  
-  /* 固定侧边栏 */
-  .fixed-aside {
-      height: 100vh; /* 占满视口高度 */
-      position: fixed; /* 固定定位 */
-      top: 0;
-      left: 0;
-      bottom: 0;
-      z-index: 1000; /* 确保在顶层 */
-      display: flex;
-      flex-direction: column;
-      background-color: #ffffff; /* 或其他背景色 */
-      box-shadow: 2px 0 6px rgba(0, 21, 41, 0.08);
-      overscroll-behavior: contain; /* 阻止滚动事件冒泡到外部 */
-  }
-  
-  /* 主内容区，需要留出侧边栏空间 */
-  .main-content-area {
-      /* 假设侧边栏宽度为 210px，根据实际 SidebarNav 宽度调整 */
-      margin-left: 210px;
-      padding: 20px;
-      width: calc(100% - 210px); /* 占据剩余宽度 */
-      box-sizing: border-box; /* padding 不会增加宽度 */
-      overflow-y: auto; /* 内容区独立滚动 */
-  }
-  
-  /* 工具卡片样式 */
+}
 
-  
-  /* 快速搜索按钮 */
-  .quick-search-buttons .el-button {
-      margin-right: 10px;
-      margin-bottom: 10px; /* 移动端换行时 */
-  }
-  
-  /* 横幅推荐 */
-  .banner-recommendation {
-      margin-bottom: 20px;
-      border: 1px solid #ebeef5;
-      padding: 15px;
-      border-radius: 4px;
-      background-color: #f5f7fa; /* 淡色背景 */
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-  }
-  .banner-recommendation:hover {
-      box-shadow: 0 2px 8px rgba(0,0,0,.08);
-  }
-  .banner-content {
-      font-size: 1.1em;
-      font-weight: 500;
-  }
-  .banner-link {
-      text-decoration: none;
-  }
-  
-  /* 分割线 */
-  .section-divider {
-      margin-top: 30px;
-      margin-bottom: 25px;
-  }
-  
-  /* 底部链接样式 */
-  .sidebar-bottom-links {
-      margin-top: auto; /* 推到底部 */
-      padding: 15px 20px;
-      border-top: 1px solid #e4e7ed; /* 分隔线 */
-  }
-  .sidebar-bottom-links .el-menu-item {
-      height: 40px;
-      line-height: 40px;
-  }
+#app {
+    height: 100vh;
+    /* 使根元素占满视口高度 */
+    display: flex;
+    /* 使用 flex 布局 */
+}
+
+/* 修正 Element Plus 容器高度 */
+.el-container {
+    height: 100%;
+}
+
+/* 固定侧边栏 */
+.fixed-aside {
+    height: 100vh;
+    /* 占满视口高度 */
+    position: fixed;
+    /* 固定定位 */
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 1000;
+    /* 确保在顶层 */
+    display: flex;
+    flex-direction: column;
+    background-color: #ffffff;
+    /* 或其他背景色 */
+    box-shadow: 2px 0 6px rgba(0, 21, 41, 0.08);
+    overscroll-behavior: contain;
+    /* 阻止滚动事件冒泡到外部 */
+}
+
+/* 主内容区，需要留出侧边栏空间 */
+.main-content-area {
+    /* 假设侧边栏宽度为 210px，根据实际 SidebarNav 宽度调整 */
+    margin-left: 210px;
+    padding: 20px;
+    width: calc(100% - 210px);
+    /* 占据剩余宽度 */
+    box-sizing: border-box;
+    /* padding 不会增加宽度 */
+    overflow-y: auto;
+    /* 内容区独立滚动 */
+}
+
+/* 工具卡片样式 */
+
+
+/* 快速搜索按钮 */
+.quick-search-buttons .el-button {
+    margin-right: 10px;
+    margin-bottom: 10px;
+    /* 移动端换行时 */
+}
+
+/* 横幅推荐 */
+.banner-recommendation {
+    margin-bottom: 20px;
+    border: 1px solid #ebeef5;
+    padding: 15px;
+    border-radius: 4px;
+    background-color: #f5f7fa;
+    /* 淡色背景 */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.banner-recommendation:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
+}
+
+.banner-content {
+    font-size: 1.1em;
+    font-weight: 500;
+}
+
+.banner-link {
+    text-decoration: none;
+}
+
+/* 分割线 */
+.section-divider {
+    margin-top: 30px;
+    margin-bottom: 25px;
+}
+
+/* 底部链接样式 */
+.sidebar-bottom-links {
+    margin-top: auto;
+    /* 推到底部 */
+    padding: 15px 20px;
+    border-top: 1px solid #e4e7ed;
+    /* 分隔线 */
+}
+
+.sidebar-bottom-links .el-menu-item {
+    height: 40px;
+    line-height: 40px;
+}

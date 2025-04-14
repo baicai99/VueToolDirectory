@@ -132,13 +132,19 @@ const changeNews = (newsItem) => {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
   padding: 20px;
   box-sizing: border-box;
+  transform: translateZ(0);
+  will-change: transform;
+  isolation: isolate;
+  pointer-events: auto;
 }
 
 .news-detail-container {
@@ -357,12 +363,14 @@ const changeNews = (newsItem) => {
     padding: 5%;
     /* 为Chrome搜索框预留空间，将内容下移 */
     padding-top: 17%;
-    align-items: flex-start; /* 顶部对齐而不是居中 */
+    align-items: flex-start;
+    /* 顶部对齐而不是居中 */
     z-index: 1000;
   }
 
   .news-detail-container {
-    max-height: 80vh; /* 减小高度以适应顶部和底部空间 */
+    max-height: 80vh;
+    /* 减小高度以适应顶部和底部空间 */
     z-index: 1001;
     position: relative;
     /* 距离屏幕底部更远一些 */
@@ -377,11 +385,13 @@ const changeNews = (newsItem) => {
   .close-button {
     top: 10px;
     right: 10px;
-    z-index: 1010; /* 确保关闭按钮在最上层 */
+    z-index: 1010;
+    /* 确保关闭按钮在最上层 */
   }
 
   .news-detail-content {
-    max-height: calc(80vh - 40px); /* 调整为新的高度限制 */
+    max-height: calc(80vh - 40px);
+    /* 调整为新的高度限制 */
   }
 }
 </style>

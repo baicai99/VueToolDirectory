@@ -287,7 +287,7 @@ export default {
       '.sidebar-title',           // 标题区域
       '.sidebar-search-wrapper'   // 搜索区域
     ];
-    
+
     // 为每个区域添加事件监听器
     noScrollSelectors.forEach(selector => {
       const element = document.querySelector(selector);
@@ -297,7 +297,7 @@ export default {
           e.preventDefault();
           e.stopPropagation();
         }, { passive: false });
-        
+
         // 阻止触摸滚动事件传递
         element.addEventListener('touchmove', (e) => {
           e.preventDefault();
