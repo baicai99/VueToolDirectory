@@ -150,8 +150,9 @@ const openToolWebsite = () => {
     background-color: white;
     border-radius: 8px;
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
-    overflow-y: auto;
-    scrollbar-width: thin;
+    display: flex;
+    flex-direction: column; // 使用flex布局，方便固定顶部
+    overflow: hidden; // 修改为hidden，内部内容区域单独设置滚动
 
     &::-webkit-scrollbar {
         width: 6px;
@@ -164,12 +165,9 @@ const openToolWebsite = () => {
 }
 
 .close-button {
-    position: sticky; // 使用sticky定位
+    position: absolute; // 改为absolute定位
     top: 16px;
-    margin-left: auto; // 使用margin-left: auto将按钮推到右侧
-    margin-right: 16px;
-    margin-top: 16px;
-    float: right; // 使用浮动布局使按钮位于右侧且不影响其他内容
+    right: 16px;
     z-index: 1010;
     font-size: 20px;
     opacity: 0.9;
@@ -187,6 +185,12 @@ const openToolWebsite = () => {
 
 .tool-detail-content {
     padding: 24px 32px 32px;
+    overflow-y: auto; // 使内容区域可以独立滚动
+    max-height: calc(90vh - 32px); // 考虑padding的高度限制
+    scrollbar-width: thin;
+
+    // 添加顶部padding，防止内容被关闭按钮遮挡
+    padding-top: 48px;
 
     .tool-header {
         display: flex;
@@ -300,6 +304,8 @@ const openToolWebsite = () => {
 
     .tool-detail-content {
         padding: 16px 20px 20px;
+        max-height: calc(95vh - 20px);
+        padding-top: 40px; // 移动端顶部padding调小
 
         .tool-header {
             flex-direction: column;

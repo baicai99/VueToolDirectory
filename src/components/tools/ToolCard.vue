@@ -82,9 +82,12 @@ const handleImageError = (event) => {
   cursor: pointer;
   transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  // 只在桌面端应用hover效果
+  @media (min-width: 769px) {
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
   }
 
   :deep(.el-card__body) {
@@ -136,6 +139,12 @@ const handleImageError = (event) => {
 @media (max-width: 768px) {
   .tool-card {
     margin-bottom: 16px;
+
+    // 移动端禁用hover效果
+    &:hover {
+      transform: none;
+      box-shadow: var(--el-box-shadow-light);
+    }
 
     :deep(.el-card__body) {
       padding: 12px;

@@ -1,14 +1,12 @@
 <template>
   <div class="news-detail-overlay" @click.self="closeDetail">
     <div class="news-detail-container">
-      <!-- 将关闭按钮移到自己的容器中，与内容分开 -->
-      <div class="button-container">
-        <el-button class="close-button" circle plain @click="closeDetail">
-          <el-icon>
-            <Close />
-          </el-icon>
-        </el-button>
-      </div>
+      <!-- 将关闭按钮直接放在容器中，与ToolDetail.vue保持一致 -->
+      <el-button class="close-button" circle plain @click="closeDetail">
+        <el-icon>
+          <Close />
+        </el-icon>
+      </el-button>
 
       <div v-if="newsItem" class="news-detail-content">
         <div class="news-detail-image">
@@ -151,8 +149,9 @@ const changeNews = (newsItem) => {
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
-  overflow-y: auto;
-  scrollbar-width: thin;
+  display: flex;
+  flex-direction: column; // 使用flex布局，方便固定顶部
+  overflow: hidden; // 修改为hidden，内部内容区域单独设置滚动
 
   &::-webkit-scrollbar {
     width: 6px;
@@ -173,6 +172,10 @@ const changeNews = (newsItem) => {
 }
 
 .close-button {
+  position: absolute; // 改为absolute定位
+  top: 16px;
+  right: 16px;
+  z-index: 1010;
   font-size: 20px;
   opacity: 0.9;
   backdrop-filter: blur(8px);
@@ -188,14 +191,18 @@ const changeNews = (newsItem) => {
 }
 
 .news-detail-content {
-  /* 确保内容区域完全显示 */
+  overflow-y: auto; // 使内容区域可以独立滚动
+  max-height: calc(90vh - 32px); // 考虑padding的高度限制
+  scrollbar-width: thin;
   position: relative;
   z-index: 1;
+  padding-top: 0; // 移除顶部内边距，避免挤压图片
 
   .news-detail-image {
     position: relative;
     height: 300px;
     overflow: hidden;
+    margin-top: 0; // 确保没有上边距
 
     .el-image {
       width: 100%;
@@ -342,5 +349,25 @@ const changeNews = (newsItem) => {
 
 .news-detail-loading {
   padding: 100px 0;
+}
+
+/* 移动端适配样式 */
+@media (max-width: 768px) {
+  .news-detail-overlay {
+    padding: 10px;
+  }
+
+  .news-detail-container {
+    max-height: 95vh;
+  }
+
+  .close-button {
+    top: 10px;
+    right: 10px;
+  }
+
+  .news-detail-content {
+    max-height: calc(95vh - 20px);
+  }
 }
 </style>

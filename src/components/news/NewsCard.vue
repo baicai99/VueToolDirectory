@@ -57,8 +57,11 @@ const openDetail = () => {
   transition: transform 0.3s;
   height: 100%;
 
-  &:hover {
-    transform: translateY(-5px);
+  // 在桌面端保留hover效果
+  @media (min-width: 769px) {
+    &:hover {
+      transform: translateY(-5px);
+    }
   }
 
   .news-image {
@@ -141,6 +144,12 @@ const openDetail = () => {
 /* 移动端适配 */
 @media (max-width: 768px) {
   .news-card {
+
+    // 移动端禁用hover状态变换
+    &:hover {
+      transform: none;
+    }
+
     .news-image {
       height: 160px; // 稍微减小图片高度
     }
