@@ -1,12 +1,14 @@
 <template>
-  <el-main class="news-view-main">
-    <h1>每周 AI 快讯</h1>
-    <el-divider />
+  <div class="news-view">
+    <el-main class="news-view-main">
+      <h1>每周 AI 快讯</h1>
+      <el-divider />
 
-    <news-list :news-data="newsData" :categories="categories" />
+      <news-list :news-data="newsData" :categories="categories" />
 
-    <el-backtop :right="20" :bottom="20" />
-  </el-main>
+      <el-backtop :right="20" :bottom="20" />
+    </el-main>
+  </div>
 </template>
 
 <script setup>
@@ -130,6 +132,12 @@ onMounted(() => {
 </script>
 
 <style lang="less" scoped>
+.news-view {
+  background-color: #f5f7fa;
+  min-height: 100vh;
+  width: 100%;
+}
+
 .news-view-main {
   padding: 20px;
   box-sizing: border-box;

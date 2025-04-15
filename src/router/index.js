@@ -8,6 +8,7 @@ import NewsView from '../views/NewsView.vue';
 import HotToolsView from '../views/HotToolsView.vue'; // 假设你也创建了 HotToolsView.vue
 import ChatWithMe from '../views/ChatWithMe.vue';
 import ExternalPageView from '../views/ExternalPageView.vue'; // <--- 1. 导入新组件
+import AICompetitionView from '../views/AICompetitionView.vue'; // <--- 导入AI竞赛组件
 
 // --- 移除内联定义 ---
 // const NewsView = { template: ... };
@@ -46,6 +47,11 @@ const routes = [
       // 传入 Dify Chatbot 的 URL
       url: 'https://dify.zhengjiyuan.top/chatbot/9Y25YaGwhkda2Ayl'
     }
+  },
+  {
+    path: '/ai-competition', // 定义AI竞赛的路径
+    name: 'AICompetition',   // 定义路由名称
+    component: AICompetitionView // 使用AI竞赛视图组件
   }
 ];
 

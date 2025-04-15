@@ -1,182 +1,194 @@
-// src/App.vue
 <template>
-  <div class="app-outer-container">
-    <!-- 侧边栏导航组件，使用固定定位脱离文档流 -->
-    <div class="sidebar-container" :class="{ 'collapsed': isSidebarCollapsed }">
-      <SidebarNav :categories="sidebarCategoriesData" :bottom-links="sidebarBottomLinksData"
-        :initial-category="currentSidebarCategory" :is-collapsed="isSidebarCollapsed"
-        @categorySelected="updateSidebarCategory" @sidebarSearch="updateSidebarSearch"
-        @bottomLinkClicked="handleBottomLinkClick" @sidebarCollapse="handleSidebarCollapse" />
-    </div>
+  <div class="app-layout">
+    <aside class="app-sidebar" :class="{ 'is-collapsed': isSidebarCollapsed }">
+      <SidebarNav
+        :categories="sidebarCategoriesData"
+        :bottom-links="sidebarBottomLinksData"
+        :initial-category="currentSidebarCategory"
+        :is-collapsed="isSidebarCollapsed"
+        @categorySelected="updateSidebarCategory"
+        @sidebarSearch="updateSidebarSearch"
+        @bottomLinkClicked="handleBottomLinkClick"
+        @sidebarCollapse="handleSidebarCollapse"
+      />
+    </aside>
 
-    <!-- 点击背景关闭侧边栏的遮罩层 -->
     <transition name="fade-blur">
-      <div class="mobile-overlay" v-if="!isSidebarCollapsed" @click="handleSidebarCollapse(true)"></div>
+      <div
+        v-if="showMobileOverlay"
+        class="mobile-overlay"
+        @click="closeSidebarOnMobile"
+        aria-hidden="true"
+      ></div>
     </transition>
 
-    <!-- 主内容区，完全独立于侧边栏 -->
-    <div class="main-content-container" :class="{ 'sidebar-expanded': !isSidebarCollapsed }">
-      <!-- 移动端顶部导航栏 -->
-      <div class="mobile-header">
-        <el-button class="menu-toggle" :icon="Menu" @click="handleSidebarCollapse(false)" />
-        <h3 class="mobile-title">智搜导航</h3>
-      </div>
+    <main class="app-main-content">
+      <MobileHeader
+        v-if="isMobile"
+        :title="'智搜导航'"
+        :is-sidebar-collapsed="isSidebarCollapsed"
+        @sidebarCollapse="handleSidebarCollapse"
+      />
 
-      <!-- 路由内容区域 -->
-      <router-view :all-tools-data="allToolsData" :selected-sidebar-category="currentSidebarCategory"
-        :sidebar-search-query="currentSidebarSearch" :content-tabs="contentTabsData" v-slot="{ Component }">
-        <transition name="fade" mode="out-in">
-          <component :is="Component" />
-        </transition>
-      </router-view>
-    </div>
+      <div class="app-router-view-wrapper">
+        <router-view v-slot="{ Component }">
+          <transition name="fade" mode="out-in">
+            <component
+              :is="Component"
+              :all-tools-data="allToolsData"
+              :selected-sidebar-category="currentSidebarCategory"
+              :sidebar-search-query="currentSidebarSearch"
+              :content-tabs="contentTabsData"
+            />
+          </transition>
+        </router-view>
+      </div>
+    </main>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import { Menu } from '@element-plus/icons-vue';
+import { useDebounceFn } from '@vueuse/core'; // 引入防抖函数库
 
-// 导入侧边栏组件和数据
+// 导入子组件和数据
 import SidebarNav from './components/layout/SidebarNav.vue';
+import MobileHeader from './components/layout/MobileHeader.vue';
 import {
   allTools,
   sidebarCategories,
   sidebarBottomLinks,
-  contentTabs
-} from './data/tools.js';
+  contentTabs,
+} from './data/index.js';
 
-// --- 获取 router 实例 ---
+// --- 路由 ---
 const router = useRouter();
 
-// --- 移动端相关状态 ---
-const isMobile = ref(window.innerWidth <= 768);
-const isSidebarCollapsed = ref(window.innerWidth <= 768);
-
-// 计算并设置真实的视口高度
-const setViewportHeight = () => {
-  // 将视口高度设置为CSS变量，解决移动浏览器地址栏收缩问题
-  const vh = window.innerHeight * 0.01;
-  document.documentElement.style.setProperty('--vh', `${vh}px`);
-};
-
-// 修改强制触发全屏滚动行为的函数
-const triggerBrowserBarsHiding = () => {
-  // 只在页面初始加载时执行一次，而不是每次滚动都执行
-  if (!window.hasTriggeredBarsHiding) {
-    window.hasTriggeredBarsHiding = true;
-    // 使用更温和的方式，只滚动最小距离
-    setTimeout(() => {
-      if (window.scrollY === 0) {
-        window.scrollTo(0, 1);
-      }
-    }, 300);
-  }
-};
-
-// 处理窗口大小变化
-const handleResize = () => {
-  isMobile.value = window.innerWidth <= 768;
-
-  // 重新计算视口高度
-  setViewportHeight();
-
-  // 在移动端自动折叠侧边栏
-  if (isMobile.value && !isSidebarCollapsed.value) {
-    isSidebarCollapsed.value = true;
-  }
-
-  // 只有在页面顶部才重新触发浏览器地址栏隐藏
-  if (isMobile.value && window.scrollY === 0) {
-    triggerBrowserBarsHiding();
-  }
-};
-
-// 监听窗口大小变化和滚动事件
-onMounted(() => {
-  window.addEventListener('resize', handleResize);
-  // 移除滚动事件监听器，防止它影响正常滚动
-  window.addEventListener('scroll', () => {
-    // 只更新视口高度，不再强制滚动
-    setViewportHeight();
-  });
-
-  // 初始化视口高度
-  setViewportHeight();
-  // 只在组件挂载后触发一次
-  triggerBrowserBarsHiding();
-  handleResize(); // 初始检查
-});
-
-onUnmounted(() => {
-  window.removeEventListener('resize', handleResize);
-  window.removeEventListener('scroll', setViewportHeight);
-});
-
-// --- 状态管理 ---
+// --- 响应式状态 ---
 const allToolsData = ref(allTools);
 const sidebarCategoriesData = ref(sidebarCategories);
 const sidebarBottomLinksData = ref(sidebarBottomLinks);
 const contentTabsData = ref(contentTabs);
 
-// currentSidebarCategory 用于追踪侧边栏的选中状态，以便高亮显示
 const currentSidebarCategory = ref('all');
 const currentSidebarSearch = ref('');
 
-// 此方法现在只处理主分类菜单的点击事件
+// 设备与侧边栏状态
+const windowWidth = ref(window.innerWidth);
+const isMobile = computed(() => windowWidth.value <= 768);
+// 初始状态：移动端默认折叠，PC端默认展开
+const isSidebarCollapsed = ref(window.innerWidth <= 768);
+// 移动端遮罩层显示逻辑
+const showMobileOverlay = computed(() => isMobile.value && !isSidebarCollapsed.value);
+
+// --- 生命周期与事件处理 ---
+
+// 优化：防抖处理 resize
+const handleResize = useDebounceFn(() => {
+  windowWidth.value = window.innerWidth;
+  // 在PC端，如果窗口从 <768 变为 >=768，自动展开侧边栏 (如果之前是折叠的)
+  // 在移动端，如果窗口从 >=768 变为 <768，自动折叠侧边栏 (如果之前是展开的)
+  // 这部分逻辑可以根据产品需求调整，目前保持简单：resize 时不强制改变折叠状态，除非是从移动切到PC或反之
+  // if (isMobile.value && !isSidebarCollapsed.value) {
+  //   isSidebarCollapsed.value = true; // 切换到移动端时折叠
+  // } else if (!isMobile.value && isSidebarCollapsed.value) {
+      // isSidebarCollapsed.value = false; // (可选) 切换到PC端时展开
+  // }
+}, 200); // 200ms 防抖
+
+onMounted(() => {
+  window.addEventListener('resize', handleResize);
+  // 移除 setViewportHeight 和 triggerBrowserBarsHiding 相关逻辑，
+  // 使用更现代的 CSS 单位或接受默认行为，简化代码。
+  // 如果确实需要 --vh，可以在 handleResize 中设置，但避免 calc()
+  // setInitialViewportHeight(); // 如果需要，可以保留初始设置
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize);
+});
+
+// --- 方法 ---
+
+// 更新侧边栏选中项
 const updateSidebarCategory = (categoryId) => {
-  currentSidebarCategory.value = categoryId; // 更新侧边栏高亮状态
-  currentSidebarSearch.value = ''; // 清空侧边栏搜索
-
-  // 在移动设备上自动折叠侧边栏
-  if (isMobile.value) {
-    isSidebarCollapsed.value = true;
-  }
-
-  // 直接导航到主页
-  router.push('/');
+  currentSidebarCategory.value = categoryId;
+  currentSidebarSearch.value = '';
+  closeSidebarOnMobile(); // 选择后在移动端关闭侧边栏
+  router.push('/'); // 导航到主页显示结果
 };
 
+// 更新侧边栏搜索
 const updateSidebarSearch = (query) => {
   currentSidebarSearch.value = query;
-
-  // 在移动设备上自动折叠侧边栏
-  if (isMobile.value) {
-    isSidebarCollapsed.value = true;
-  }
-
-  // 搜索时，通常也跳转回主页以显示过滤结果
-  router.push('/');
+  closeSidebarOnMobile(); // 搜索后在移动端关闭侧边栏
+  router.push('/'); // 导航到主页显示结果
 };
 
+// 处理底部链接点击
 const handleBottomLinkClick = (link) => {
   console.log('Bottom link clicked:', link);
+  closeSidebarOnMobile(); // 点击后在移动端关闭侧边栏
 
-  // 在移动设备上自动折叠侧边栏
-  if (isMobile.value) {
-    isSidebarCollapsed.value = true;
-  }
-
-  // 如果有路由信息，进行路由跳转
   if (link.route) {
     router.push(link.route);
-  }
-  // 如果有外部链接，在新窗口打开
-  else if (link.externalUrl) {
+  } else if (link.externalUrl) {
     window.open(link.externalUrl, '_blank');
   }
 };
 
-// 处理侧边栏折叠状态
+// 切换侧边栏折叠状态 (来自 SidebarNav 或 MobileHeader 的事件)
 const handleSidebarCollapse = (collapsed) => {
-  console.log('Sidebar collapse toggled:', collapsed);
+  // 如果是移动端，点击按钮切换状态
+  // 如果是PC端，通常不允许通过按钮折叠（除非 SidebarNav 内部有此设计）
+  // 这里简化为直接设置状态
   isSidebarCollapsed.value = collapsed;
+  console.log('Sidebar collapse toggled:', collapsed);
 };
+
+// 在移动端关闭侧边栏 (用于遮罩层点击、菜单选择等)
+const closeSidebarOnMobile = () => {
+  if (isMobile.value) {
+    isSidebarCollapsed.value = true;
+  }
+};
+
+// 监听路由变化，确保移动端侧边栏在导航后关闭
+// watch(
+//   () => router.currentRoute.value.path,
+//   () => {
+//     closeSidebarOnMobile();
+//   }
+// );
+
+/*
+// --- (可选) 替代 --vh 的 JS 方案 ---
+// 如果 100vh 在特定移动浏览器上问题严重，可以启用这个
+const setViewportHeightProperty = () => {
+  const vh = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty('--vh-js', `${vh}px`);
+}
+onMounted(() => {
+  window.addEventListener('resize', handleResize);
+  window.visualViewport?.addEventListener('resize', setViewportHeightProperty); // 监听虚拟视口变化
+  setViewportHeightProperty(); // Initial set
+});
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize);
+  window.visualViewport?.removeEventListener('resize', setViewportHeightProperty);
+});
+// 然后在 CSS 中使用 height: calc(var(--vh-js, 1vh) * 100) 或者直接 height: var(--dynamic-height, 100vh)
+// 但鉴于你禁止 calc()，可以直接在 JS 中计算精确像素值并设置给 #app
+// const appElement = document.getElementById('app'); // or ref
+// if (appElement) appElement.style.height = `${window.innerHeight}px`;
+// 但这种方式通常不如纯 CSS 方案灵活。建议优先使用 100vh 或 100dvh。
+*/
+
 </script>
 
 <style lang="less">
-/* 全局根样式 */
+/* 全局和基础样式 (保留大部分，移除或简化与滚动/高度相关的复杂规则) */
 :root {
   font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB',
     'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
@@ -184,243 +196,156 @@ const handleSidebarCollapse = (collapsed) => {
   font-weight: 400;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* 移除 --vh 变量，除非选择 JS 方案并重新引入 */
 }
 
-/* 基础元素样式 */
+html {
+  height: 100%; /* 确保 html 是 100% 高度 */
+}
+
 body {
   margin: 0;
-  /* 使用一个常见且兼容性较好的字体栈 */
-  font-family: 'Helvetica Neue', Helvetica, 'PingFang SC', 'Hiragino Sans GB',
-    'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
+  padding: 0; /* 移除安全区域 padding，通常在特定容器内处理 */
+  font-family: inherit; /* 继承 :root */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* 适应移动浏览器的安全区域 */
-  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-
-  /* 全局滚动行为控制 - 修改这些设置允许滚动 */
-  margin: 0;
-  padding: 0;
   width: 100%;
-  height: 100%;
-  overflow-x: hidden;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior-y: auto;
-  /* 允许普通的滚动反弹行为 */
-
-  /* 修改触摸行为，允许滚动但禁用缩放 */
-  touch-action: pan-x pan-y;
-  /* 允许平移 */
+  min-height: 100%; /* 使用 min-height 替代 height */
+  overflow-x: hidden; /* 防止水平滚动 */
+  position: relative; /* 确保 body 是定位上下文 */
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  position: static;
 }
 
-/* 移动设备优化 */
-@media (max-width: 768px) {
-  body {
-    /* 使用视口单位确保全屏内容 */
-    min-height: -webkit-fill-available;
-    /* 允许页面滚动 */
-    overflow-y: auto !important;
-    /* 强制允许滚动 */
-    -webkit-overflow-scrolling: touch;
-    /* 确保滚动流畅 */
-    overscroll-behavior-y: auto;
-    /* 允许普通的滚动行为 */
-  }
-}
+/* 如果需要支持 iOS 刘海屏等安全区域，在需要避让的元素上设置 padding */
+/* 例如 .app-main-content { padding: env(safe-area-inset-top) ... } */
 
-/* 基础元素样式 */
 a {
   font-weight: 500;
   color: #646cff;
   text-decoration: inherit;
-
-  &:hover {
-    color: #535bf2;
-  }
+  &:hover { color: #535bf2; }
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+h1 { /* ... */ }
+button { /* ... */ }
+
+#app {
+  /* 使 app 容器占满父元素 (body) */
+  height: 100vh; /* 优先使用 vh 单位，更现代且能处理地址栏问题 */
+  /* 如果 100vh 问题严重, 考虑 100dvh (Dynamic Viewport Height) */
+  /* height: 100dvh; */
+  /* 或者 fallback 到 100% (如果html, body 设置了 height: 100%) */
+  /* height: 100%; */
+  /* 移除 calc(var(--vh...)) */
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-
-  &:hover {
-    border-color: #646cff;
-  }
-
-  &:focus,
-  &:focus-visible {
-    outline: 4px auto -webkit-focus-ring-color;
-  }
-}
-
-#app,
-.app-container,
-.el-container {
-  height: 100vh;
-  height: calc(var(--vh, 1vh) * 100);
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-
-  a:hover {
-    color: #747bff;
-  }
-
-  button {
-    background-color: #f9f9f9;
-  }
-}
+/* 颜色方案 */
+@media (prefers-color-scheme: light) { /* ... */ }
 </style>
 
 <style lang="less" scoped>
-/* 
-* 主应用容器 - 采用全新的布局结构
-*/
-.app-outer-container {
+.app-layout {
   display: flex;
-  position: relative;
   width: 100%;
-  min-height: 100vh;
-  overflow-x: hidden;
+  height: 100vh; /* 或者 100dvh / 100% */
+  overflow: hidden; /* 布局容器本身不滚动 */
+  background-color: #f0f2f5; /* 给布局一个背景色，可选 */
+}
 
-  /* 侧边栏容器 */
-  .sidebar-container {
-    width: 240px;
-    flex-shrink: 0;
-    z-index: 1000;
-    background-color: #fff;
-    transition: transform 0.3s ease;
+.app-sidebar {
+  width: 240px;
+  flex-shrink: 0; /* 固定宽度，不压缩 */
+  height: 100%; /* 占满父容器高度 */
+  background-color: #fff;
+  z-index: 1000;
+  transition: transform 0.3s ease, width 0.3s ease; /* 添加宽度过渡 */
+  overflow-y: auto; /* 侧边栏内部内容可滚动 */
+  overscroll-behavior: contain; /* 防止滚动穿透 */
 
-    /* 桌面端侧边栏 - 使用固定定位脱离文档流 */
-    @media (min-width: 769px) {
-      position: fixed;
-      top: 0;
-      left: 0;
-      height: 100vh;
-      overflow-y: hidden;
-      /* 改为hidden，由内部元素自行处理滚动 */
-      /* 阻止滚动事件传递 */
-      overscroll-behavior: contain;
-      overscroll-behavior-y: contain;
-      isolation: isolate;
-      /* 创建新的层叠上下文 */
-      /* 添加 touch-action 限制，防止滚动事件穿透 */
-      touch-action: pan-x;
-    }
-
-    /* 移动端侧边栏 */
-    @media (max-width: 768px) {
-      position: fixed;
-      left: 0;
-      top: 0;
-      height: 100%;
-      width: 240px !important;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      transform: translateX(0);
-      isolation: isolate;
-      /* 创建新的层叠上下文 */
-
-      &.collapsed {
-        transform: translateX(-100%);
-      }
-    }
+  /* PC 端样式 (默认) */
+  @media (min-width: 769px) {
+    position: relative; /* 在 flex 布局中保持文档流 */
+    transform: translateX(0);
+    /* &.is-collapsed { */
+      /* 如果 PC 端也需要折叠功能，在这里添加样式 */
+      /* width: 64px; */ /* 例如折叠后的宽度 */
+      /* overflow: hidden; */
+    /* } */
   }
 
-  /* 遮罩层 */
-  .mobile-overlay {
-    position: fixed;
-    top: 0;
+  /* 移动端样式 */
+  @media (max-width: 768px) {
+    position: fixed; /* 固定定位，脱离文档流 */
     left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
-    z-index: 999;
-    display: block;
+    top: 0;
+    transform: translateX(0);
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.15);
 
-    @media (min-width: 769px) {
-      display: none;
-    }
-  }
-
-  /* 主内容区 */
-  .main-content-container {
-    flex: 1;
-    width: 100%;
-    min-height: 100vh;
-
-    /* 桌面端下，为侧边栏留出空间 */
-    @media (min-width: 769px) {
-      margin-left: 240px;
-    }
-
-    /* 移动端顶部导航栏 */
-    .mobile-header {
-      display: none;
-      padding: 10px 15px;
-      background-color: rgba(255, 255, 255, 0.85);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      align-items: center;
-      padding-top: max(10px, env(safe-area-inset-top));
-
-      @media (max-width: 768px) {
-        display: flex;
-        position: sticky;
-        top: 0;
-        z-index: 10;
-      }
-
-      .menu-toggle {
-        margin-right: 15px;
-      }
-
-      .mobile-title {
-        margin: 0;
-        font-size: 1.2em;
-      }
+    &.is-collapsed {
+      transform: translateX(-100%);
     }
   }
 }
 
-/* 路由过渡动画 */
+.mobile-overlay {
+  position: fixed;
+  inset: 0; /* 等同于 top/left/right/bottom: 0 */
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  z-index: 999; /* 低于侧边栏 */
+
+  /* 默认只在移动端显示，由 v-if 控制 */
+  /* @media (min-width: 769px) { display: none; } */ // 不需要了，v-if 处理
+}
+
+.app-main-content {
+  flex-grow: 1; /* 占据剩余空间 */
+  height: 100%; /* 占满父容器高度 */
+  display: flex;
+  flex-direction: column; /* 内部垂直布局: Header (可选) + Content */
+  overflow: hidden; /* 主内容区容器不滚动 */
+
+  /* PC 端 */
+  @media (min-width: 769px) {
+    // margin-left: 0; /* 因为 sidebar 是 flex item，不需要 margin */
+    // 如果侧边栏在PC端折叠，这里可能需要调整
+    // transition: margin-left 0.3s ease;
+    // &.sidebar-collapsed { margin-left: 64px; /* 配合侧边栏折叠后的宽度 */ }
+  }
+
+  /* 移动端 */
+  @media (max-width: 768px) {
+    // margin-left: 0; /* 侧边栏 fixed，主内容区自动占满 */
+  }
+}
+
+.app-router-view-wrapper {
+  flex-grow: 1; /* 占据主内容区的剩余空间 */
+  overflow-y: auto; /* !!! 路由内容区域负责滚动 !!! */
+  overscroll-behavior: contain; /* 防止滚动穿透 */
+  padding: 16px; /* 示例：给内容区添加内边距 */
+  position: relative; /* 为内部绝对定位元素提供上下文 */
+  /* 如果需要考虑移动端安全区域 */
+  // padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* 过渡动画 (保持不变) */
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.2s ease;
 }
-
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
 }
 
-/* 添加遮罩层的淡入淡出和模糊效果过渡 */
 .fade-blur-enter-active,
 .fade-blur-leave-active {
   transition: opacity 0.3s ease, backdrop-filter 0.3s ease;
   transition: opacity 0.3s ease, -webkit-backdrop-filter 0.3s ease;
 }
-
 .fade-blur-enter-from,
 .fade-blur-leave-to {
   opacity: 0;
