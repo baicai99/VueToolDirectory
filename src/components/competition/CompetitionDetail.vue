@@ -265,9 +265,8 @@ watch(() => props.visible, (newVal) => {
 
 // 组件卸载时确保恢复滚动
 onUnmounted(() => {
-    if (document.body.style.overflow === 'hidden') {
-        document.body.style.overflow = originalOverflow || '';
-    }
+    // 确保页面滚动被恢复，即使组件意外销毁
+    document.body.style.overflow = originalOverflow || '';
 });
 </script>
 

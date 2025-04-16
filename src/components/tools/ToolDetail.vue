@@ -1,43 +1,48 @@
 <template>
-    <div class="tool-detail-overlay" v-if="tool" @click="handleOverlayClick">
-        <div class="tool-detail-container" @click.stop>
-            <!-- 关闭按钮 -->
-            <button type="button" class="el-button is-plain is-circle close-button" @click="closeDetail">
-                <span>
-                    <i class="el-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
-                            <path fill="currentColor"
-                                d="M764.288 214.592 512 466.88 259.712 214.592a31.936 31.936 0 0 0-45.12 45.12L466.752 512 214.528 764.224a31.936 31.936 0 1 0 45.12 45.184L512 557.184l252.288 252.288a31.936 31.936 0 0 0 45.12-45.12L557.12 512.064l252.288-252.352a31.936 31.936 0 1 0-45.12-45.184z">
-                            </path>
-                        </svg>
-                    </i>
-                </span>
-            </button>
+    <div class="modal modal-scrim modal-page-overlay modal-open visually-visible" v-if="tool"
+        @click="handleOverlayClick">
+        <div class="modal-overlay-container">
+            <div class="modal-overlay" aria-modal="true" role="dialog" @click.stop>
+                <!-- 工具详情内容 -->
+                <div class="modal-content-container">
+                    <div class="modal-content-wrapper variant-crossfade">
+                        <div class="modal-content">
+                            <!-- 使用子组件：顶部图片和类型标签 -->
+                            <ToolDetailHeader :iconUrl="resolvedIconUrl" :toolName="tool.name" :category="tool.category"
+                                :defaultIcon="defaultToolIcon" @imageError="handleImageError" />
 
-            <!-- 工具详情内容 -->
-            <div class="tool-detail-content">
-                <!-- 使用子组件：顶部图片和类型标签 -->
-                <ToolDetailHeader :iconUrl="resolvedIconUrl" :toolName="tool.name" :category="tool.category"
-                    :defaultIcon="defaultToolIcon" @imageError="handleImageError" />
+                            <!-- 使用子组件：应用商店式布局 -->
+                            <ToolInfoSection :iconUrl="resolvedIconUrl" :toolName="tool.name"
+                                :description="tool.shortDescription || tool.description" @imageError="handleImageError"
+                                @visitWebsite="openToolWebsite" />
 
-                <!-- 使用子组件：应用商店式布局 -->
-                <ToolInfoSection :iconUrl="resolvedIconUrl" :toolName="tool.name"
-                    :description="tool.shortDescription || tool.description" @imageError="handleImageError"
-                    @visitWebsite="openToolWebsite" />
+                            <!-- 使用子组件：预览组件 -->
+                            <ToolPreviewSection :toolName="tool.name" :screenshots="toolScreenshots" />
 
-                <!-- 使用子组件：预览组件 -->
-                <ToolPreviewSection :toolName="tool.name" :screenshots="toolScreenshots" />
-
-                <!-- 工具内容正文 -->
-                <div class="tool-detail-body">
-                    <!-- 使用子组件：工具描述部分 -->
-                    <ToolDescriptionSection :longDescription="tool.longDescription || tool.description || '暂无详细描述。'"
-                        :tags="toolTags" :recommendedTools="recommendedTools" :defaultIcon="defaultToolIcon"
-                        @viewTool="viewRelatedTool" @imageError="handleImageError" />
+                            <!-- 工具内容正文 -->
+                            <div class="tool-detail-body">
+                                <!-- 使用子组件：工具描述部分 -->
+                                <ToolDescriptionSection
+                                    :longDescription="tool.longDescription || tool.description || '暂无详细描述。'"
+                                    :tags="toolTags" :recommendedTools="recommendedTools" :defaultIcon="defaultToolIcon"
+                                    @viewTool="viewRelatedTool" @imageError="handleImageError" />
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- 使用子组件：底部相关推荐 -->
-                <RelatedTools :relatedTools="relatedTools" @viewTool="viewRelatedTool" />
+                <!-- 关闭按钮 -->
+                <button type="button" class="modal-close-button" @click="closeDetail">
+                    <span>
+                        <i class="el-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+                                <path fill="currentColor"
+                                    d="M764.288 214.592 512 466.88 259.712 214.592a31.936 31.936 0 0 0-45.12 45.12L466.752 512 214.528 764.224a31.936 31.936 0 1 0 45.12 45.184L512 557.184l252.288 252.288a31.936 31.936 0 0 0 45.12-45.12L557.12 512.064l252.288-252.352a31.936 31.936 0 1 0-45.12-45.184z">
+                                </path>
+                            </svg>
+                        </i>
+                    </span>
+                </button>
             </div>
         </div>
     </div>
@@ -53,7 +58,6 @@ import ToolDetailHeader from './tool-detail-components/ToolDetailHeader.vue';
 import ToolInfoSection from './tool-detail-components/ToolInfoSection.vue';
 import ToolPreviewSection from './tool-detail-components/ToolPreviewSection.vue';
 import ToolDescriptionSection from './tool-detail-components/ToolDescriptionSection.vue';
-import RelatedTools from './tool-detail-components/RelatedTools.vue';
 
 const props = defineProps({
     tool: {
@@ -223,7 +227,7 @@ watch(() => props.tool, (newVal) => {
     if (newVal) {
         // 保存原始overflow值
         originalOverflow = document.body.style.overflow;
-        // 禁止滚动
+        // 禁止滚动，只在组件显示时禁用
         document.body.style.overflow = 'hidden';
     } else {
         // 恢复滚动
@@ -233,67 +237,88 @@ watch(() => props.tool, (newVal) => {
 
 // 组件卸载时确保恢复滚动
 onUnmounted(() => {
-    if (document.body.style.overflow === 'hidden') {
-        document.body.style.overflow = originalOverflow || '';
-    }
+    // 即使组件意外销毁，也确保恢复滚动状态
+    document.body.style.overflow = originalOverflow || '';
 });
 </script>
 
 <style lang="less" scoped>
-// --- 基本变量和通用样式 ---
-.tool-detail-overlay {
+// --- 苹果风格的模态框样式 ---
+.modal {
     position: fixed;
-    top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(10px);
+    right: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 11000;
+    overflow: auto;
+
+    &.modal-scrim {
+        background-color: rgba(0, 0, 0, 0.48);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+    }
+
+    &.modal-open {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+.modal-overlay-container {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 9999;
+    width: 100%;
+    height: 100%;
     padding: 20px;
     box-sizing: border-box;
+}
+
+.modal-overlay {
+    position: relative;
+    background-color: white;
+    border-radius: 14px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    width: 100%;
+    max-width: 900px;
+    margin: auto;
+    overflow: hidden;
+    padding: 0;
     transform: translateZ(0);
     will-change: transform;
     isolation: isolate;
-    pointer-events: auto;
 }
 
-.tool-detail-container {
-    position: relative;
-    max-width: 900px;
+.modal-content-container {
     width: 100%;
-    max-height: 90vh;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
 }
 
-.close-button {
+.modal-content-wrapper {
+    width: 100%;
+}
+
+.modal-content {
+    width: 100%;
+}
+
+.modal-close-button {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    top: 16px;
+    right: 16px;
     z-index: 10;
-    font-size: 20px;
-    color: #fff;
-    background-color: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(5px);
-    -webkit-backdrop-filter: blur(5px);
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.3);
     border: none;
-    width: 32px;
-    height: 32px;
-    padding: 0;
+    color: white;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: background-color 0.3s;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    transition: background-color 0.3s ease;
 
     &:hover {
         background-color: rgba(0, 0, 0, 0.5);
@@ -304,19 +329,15 @@ onUnmounted(() => {
     }
 }
 
-.tool-detail-content {
-    overflow-y: auto;
-}
-
 .tool-detail-body {
     padding: 0 20px 20px;
 }
 
 // --- 响应式调整 ---
 @media (max-width: 768px) {
-    .tool-detail-container {
+    .modal-overlay {
         max-width: 100%;
-        max-height: 95vh;
+        border-radius: 12px;
     }
 }
 </style>

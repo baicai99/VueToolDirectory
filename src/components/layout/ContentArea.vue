@@ -51,7 +51,8 @@
       </el-row>
     </section>
 
-    <ToolDetail v-if="selectedTool" :tool="selectedTool" @close="closeToolDetail" />
+    <ToolDetail v-if="selectedTool" :tool="selectedTool" :allTools="props.allToolsData" @close="closeToolDetail"
+      @viewRelated="viewRelatedTool" />
   </div>
 </template>
 
@@ -136,6 +137,11 @@ const closeToolDetail = () => {
 const handleTabClick = (tab) => {
   // 可以添加逻辑，例如滚动到页面顶部
   // window.scrollTo(0, 0); // 如果需要的话
+};
+
+const viewRelatedTool = (tool) => {
+  selectedTool.value = tool;
+  isLocked.value = true; // 使用 useScrollLock 锁定滚动
 };
 
 // --- Watchers ---
@@ -266,7 +272,7 @@ watch(() => props.sidebarSearchQuery, (newVal, oldVal) => {
       // 移除之前错误的移动端样式覆盖
       // height: auto !important;
       // min-height: calc(100vh - 60px); // 移除 calc()
-      // overflow-y: visible !important;
+      // overflow-y: visible !重要;
       // overscroll-behavior: none !important;
   } */
 

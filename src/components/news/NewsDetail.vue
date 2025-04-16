@@ -118,7 +118,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch, onUnmounted } from 'vue';
 
 const props = defineProps({
   newsItem: {
@@ -133,17 +133,13 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'change-news']);
 
-// 相关新闻，同类别的其他新闻
+// 计算相关新闻
 const relatedNews = computed(() => {
-  if (!props.newsItem || !props.allNews || props.allNews.length === 0) {
-    return [];
-  }
+  if (!props.newsData || !props.newsItem) return [];
 
-  return props.allNews
-    .filter(item =>
-      item.id !== props.newsItem.id &&
-      item.category === props.newsItem.category
-    )
+  // 过滤掉当前新闻，优先推荐同类别的新闻
+  return props.newsData
+    .filter(n => n.id !== props.newsItem.id)
     .slice(0, 3); // 只显示最多3条相关新闻
 });
 
@@ -161,6 +157,28 @@ const handleOverlayClick = () => {
 const changeNews = (newsItem) => {
   emit('change-news', newsItem);
 };
+
+// 处理滚动锁定
+let originalOverflow;
+
+// 监听 newsItem 变化，控制 body 滚动
+watch(() => props.newsItem, (newVal) => {
+  if (newVal) {
+    // 保存原始 overflow 值
+    originalOverflow = document.body.style.overflow;
+    // 禁止滚动
+    document.body.style.overflow = 'hidden';
+  } else {
+    // 恢复滚动
+    document.body.style.overflow = originalOverflow || '';
+  }
+}, { immediate: true });
+
+// 组件卸载时确保恢复滚动
+onUnmounted(() => {
+  // 确保即使组件意外销毁，也能恢复页面滚动
+  document.body.style.overflow = originalOverflow || '';
+});
 </script>
 
 <style lang="less" scoped>
