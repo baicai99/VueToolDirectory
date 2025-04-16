@@ -46,17 +46,8 @@
                 </i>
             </h4>
             <div class="recommendations-list">
-                <div class="recommendation-item" v-for="(item, index) in recommendedTools" :key="index"
-                    @click="onViewTool(item)">
-                    <div class="recommendation-icon">
-                        <img :src="item.icon || defaultIcon" :alt="item.name" @error="onImageError">
-                    </div>
-                    <div class="recommendation-info">
-                        <div class="recommendation-name">{{ item.name }}</div>
-                        <div class="recommendation-desc">{{ item.shortDescription || truncateText(item.description, 30)
-                        }}</div>
-                    </div>
-                </div>
+                <RecommendationItem v-for="(item, index) in recommendedTools" :key="index" :item="item"
+                    :defaultIcon="defaultIcon" @click="onViewTool" @image-error="onImageError" />
             </div>
         </div>
     </div>
@@ -65,6 +56,7 @@
 <script setup>
 import { computed } from 'vue';
 import ToolFeatureCard from './ToolFeatureCard.vue';
+import RecommendationItem from './RecommendationItem.vue';
 
 // 定义传入的属性
 const props = defineProps({
@@ -235,67 +227,6 @@ const onImageError = (event) => {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
         gap: 16px;
-
-        .recommendation-item {
-            display: flex;
-            align-items: center;
-            padding: 16px;
-            border-radius: 12px;
-            background-color: #f5f5f7;
-            border: 1px solid #e6e6e6;
-            cursor: pointer;
-            transition: all 0.3s ease;
-
-            &:hover {
-                background-color: #ebebf0;
-                transform: translateY(-2px);
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-            }
-
-            .recommendation-icon {
-                flex-shrink: 0;
-                width: 48px;
-                height: 48px;
-                border-radius: 12px;
-                overflow: hidden;
-                background-color: white;
-
-                img {
-                    width: 100%;
-                    height: 100%;
-                    object-fit: cover;
-                }
-            }
-
-            .recommendation-info {
-                margin-left: 16px;
-                flex-grow: 1;
-                overflow: hidden;
-
-                .recommendation-name {
-                    font-size: 16px;
-                    line-height: 1.25;
-                    font-weight: 500;
-                    color: #1d1d1f;
-                    margin-bottom: 4px;
-                    white-space: nowrap;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                }
-
-                .recommendation-desc {
-                    font-size: 14px;
-                    line-height: 1.33337;
-                    font-weight: 400;
-                    color: #515154;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    display: -webkit-box;
-                    -webkit-line-clamp: 1;
-                    -webkit-box-orient: vertical;
-                }
-            }
-        }
     }
 }
 
