@@ -161,11 +161,11 @@ watch(() => props.sidebarSearchQuery, (newVal, oldVal) => {
 <style lang="less" scoped>
 /* 移除 calc() 并修正移动端滚动问题 */
 .content-area {
-  /* 不再需要 flex: 1 或 min-height: 100vh */
-  /* 它现在是 .app-router-view-wrapper (负责滚动) 内部的一个普通块级元素 */
-  /* background-color: #f0f2f5; // 背景色移到 App.vue 的 .app-layout 或 .app-main-content 可能更合适 */
-  padding-bottom: 20px;
-  /* 示例：给底部留一些空间 */
+  background-color: #ffffff;
+  color: #303133;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.06);
 }
 
 .content-tabs {
@@ -253,15 +253,6 @@ watch(() => props.sidebarSearchQuery, (newVal, oldVal) => {
   }
 }
 
-.tools-section,
-.hot-tools-section {
-  // 容器本身不需要特殊样式
-}
-
-.tools-grid {
-  // .el-row 默认是 flex 布局
-}
-
 .empty-state {
   text-align: center;
   color: #909399;
@@ -305,18 +296,6 @@ watch(() => props.sidebarSearchQuery, (newVal, oldVal) => {
     .banner-action {
       margin-left: auto; // 将按钮推到右侧
     }
-  }
-
-  .tools-grid {
-    // 如果需要调整移动端 gutter
-    // :deep(.el-row) {
-    //   margin-left: -5px !important;
-    //   margin-right: -5px !important;
-    // }
-    // :deep(.el-col) {
-    //   padding-left: 5px !important;
-    //   padding-right: 5px !important;
-    // }
   }
 }
 </style>

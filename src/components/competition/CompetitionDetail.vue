@@ -1,6 +1,6 @@
 <template>
-    <div class="contest-detail-overlay" v-if="visible">
-        <div class="contest-detail-container">
+    <div class="contest-detail-overlay" v-if="visible" @click="handleOverlayClick">
+        <div class="contest-detail-container" @click.stop>
             <!-- 关闭按钮 -->
             <button type="button" class="el-button is-plain is-circle close-button" @click="closeDetail">
                 <span>
@@ -164,7 +164,7 @@ const props = defineProps({
     },
     competition: {
         type: Object,
-        required: true,
+        required: false,
         default: () => ({})
     },
     allCompetitions: {
@@ -216,17 +216,30 @@ const relatedContests = computed(() => {
 
 // 访问官方网站
 const visitOfficialWebsite = () => {
-    ElNotification({
-        title: '跳转官方网站',
-        message: `正在跳转到"${props.competition.title}"的官方网站`,
-        type: 'info'
-    });
-    // 这里可以实现链接跳转逻辑
+    if (props.competition.officialUrl) {
+        ElNotification({
+            title: '跳转官方网站',
+            message: `正在跳转到"${props.competition.title}"的官方网站`,
+            type: 'info'
+        });
+        window.open(props.competition.officialUrl, '_blank');
+    } else {
+        ElNotification({
+            title: '无法跳转',
+            message: '该竞赛未提供官方网站链接',
+            type: 'warning'
+        });
+    }
 };
 
 // 关闭弹窗
 const closeDetail = () => {
     emit('close');
+};
+
+// 处理背景点击关闭
+const handleOverlayClick = () => {
+    closeDetail();
 };
 
 // 查看相关竞赛

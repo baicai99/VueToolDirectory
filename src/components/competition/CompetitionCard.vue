@@ -45,7 +45,7 @@
 
             <!-- 按钮 -->
             <div class="competition-buttons">
-                <el-button type="primary" @click.stop="$emit('open-website', competition)">官方网站</el-button>
+                <el-button type="primary" @click.stop="openOfficialWebsite">官方网站</el-button>
                 <el-button @click.stop="$emit('view-details', competition)">查看详情</el-button>
             </div>
         </div>
@@ -66,6 +66,15 @@ const props = defineProps({
 
 // 定义Emits
 defineEmits(['view-details', 'open-website']);
+
+// 打开官方网站
+const openOfficialWebsite = () => {
+    if (props.competition.officialUrl) {
+        window.open(props.competition.officialUrl, '_blank');
+    } else {
+        console.warn('该竞赛未提供官方网站URL');
+    }
+};
 
 // 最大显示标签数量
 const maxDisplayTags = 3;

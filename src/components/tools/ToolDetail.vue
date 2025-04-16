@@ -1,6 +1,6 @@
 <template>
-    <div class="tool-detail-overlay" v-if="tool">
-        <div class="tool-detail-container">
+    <div class="tool-detail-overlay" v-if="tool" @click="handleOverlayClick">
+        <div class="tool-detail-container" @click.stop>
             <!-- 关闭按钮 -->
             <button type="button" class="el-button is-plain is-circle close-button" @click="closeDetail">
                 <span>
@@ -156,10 +156,7 @@
 <script setup>
 import { computed, watch, onUnmounted } from 'vue';
 import { ElNotification } from 'element-plus';
-import defaultIconPath from '../../assets/icons/tool-icon-placeholder.png';
-
-// 使用 import.meta.glob 动态导入 src/assets/icons 下的所有图片资源
-const imageModules = import.meta.glob('/src/assets/icons/*.{png,jpg,jpeg,gif,svg,ico}', { eager: true });
+import { defaultToolIcon } from '../../data/allCategories.js';
 
 const props = defineProps({
     tool: {
@@ -179,31 +176,21 @@ const toolTags = computed(() => {
     return props.tool?.tags || [];
 });
 
-// 计算属性：动态解析最终要显示的图标 URL
+// 计算属性：直接使用图标路径
 const resolvedIconUrl = computed(() => {
     const currentTool = props.tool; // 获取当前工具数据
     if (!currentTool) {
-        return defaultIconPath; // 如果工具数据还没加载好，返回默认图标
+        return defaultToolIcon; // 如果工具数据还没加载好，返回默认图标
     }
 
     const iconPathInData = currentTool.icon; // 获取数据中记录的路径字符串
 
     if (!iconPathInData) {
-        return defaultIconPath; // 如果数据中没有 icon 路径，返回默认图标
+        return defaultToolIcon; // 如果数据中没有 icon 路径，返回默认图标
     }
 
-    // 构建 import.meta.glob 需要的 key (格式需要完全匹配，包括开头的 '/')
-    const moduleKey = '/' + iconPathInData;
-    const module = imageModules[moduleKey]; // 在 glob 结果中查找
-
-    if (module && module.default) {
-        // 如果找到了模块，返回 Vite 处理后的 URL
-        return module.default;
-    } else {
-        // 如果没找到匹配的模块
-        console.warn(`Icon module not found for key: ${moduleKey}. Using default icon for tool ${currentTool.name}.`);
-        return defaultIconPath; // 返回默认图标作为最终的回退
-    }
+    // 直接返回图标路径
+    return iconPathInData;
 });
 
 // 相关工具推荐，过滤掉当前工具，最多显示3个
@@ -247,15 +234,20 @@ const relatedTools = computed(() => {
 
 // 图片加载失败时的处理函数
 const handleImageError = (event) => {
-    if (event.target.src !== defaultIconPath) {
+    if (event.target.src !== defaultToolIcon) {
         console.warn(`Failed to load image: ${event.target.src}. Falling back to default.`);
-        event.target.src = defaultIconPath;
+        event.target.src = defaultToolIcon;
     }
 };
 
 // 关闭详情
 const closeDetail = () => {
     emit('close');
+};
+
+// 处理背景点击关闭
+const handleOverlayClick = () => {
+    closeDetail();
 };
 
 // 打开工具网站

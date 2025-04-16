@@ -1,7 +1,7 @@
 // src/router/index.js
 import { createRouter, createWebHistory } from 'vue-router';
 import HomeView from '../views/HomeView.vue';
-import ToolDetail from '../views/ToolDetail.vue';
+// 移除 ToolDetail 导入
 import RankingView from '../views/RankingView.vue';
 // --- 导入新的视图组件 ---
 import NewsView from '../views/NewsView.vue';
@@ -16,7 +16,7 @@ import AICompetitionView from '../views/AICompetitionView.vue'; // <--- 导入AI
 
 const routes = [
   { path: '/', name: 'Home', component: HomeView },
-  { path: '/tool/:id', name: 'ToolDetail', component: ToolDetail, props: true },
+  // 移除 ToolDetail 路由
   { path: '/ranking', name: 'Ranking', component: RankingView },
   {
     path: '/news',

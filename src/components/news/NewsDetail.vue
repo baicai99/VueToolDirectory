@@ -1,6 +1,6 @@
 <template>
-  <div class="news-detail-overlay" v-if="newsItem">
-    <div class="news-detail-container">
+  <div class="news-detail-overlay" v-if="newsItem" @click="handleOverlayClick">
+    <div class="news-detail-container" @click.stop>
       <!-- 关闭按钮 -->
       <button type="button" class="el-button is-plain is-circle close-button" @click="closeDetail">
         <span>
@@ -150,6 +150,11 @@ const relatedNews = computed(() => {
 // 关闭详情
 const closeDetail = () => {
   emit('close');
+};
+
+// 处理背景点击关闭
+const handleOverlayClick = () => {
+  closeDetail();
 };
 
 // 切换到其他相关新闻
