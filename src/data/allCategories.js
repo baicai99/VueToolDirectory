@@ -17,6 +17,11 @@ export const aiTools = [
         tags: ['ai', 'chatbot', 'google', 'multimodal', 'llm', '对话', '常用', '图片', '视频', '代码'],
         isHot: true,
         isFeatured: true,
+        // 添加 FeatureCard 显示配置
+        textColor: 'white',
+        imagePosition: 'image-backdrop',
+        showButton: true,
+        cardHeight: 450
     },
     {
         id: 'hidreamai',
@@ -29,6 +34,9 @@ export const aiTools = [
         tags: ['ai', '常用', 'image generation', 'text to image', 'art', 'creative', 'design', '图像生成', '人工智能', '设计', '创意', '艺术', '灵感'],
         isHot: false,
         isFeatured: false,
+        // 添加 FeatureCard 显示配置
+        textColor: 'black',
+        imagePosition: 'image-center-center'
     },
     {
         id: 'chatgpt',
@@ -41,6 +49,10 @@ export const aiTools = [
         tags: ['ai', 'chatbot', 'openai', '对话', '常用'],
         isHot: true,
         isFeatured: false,
+        // 添加 FeatureCard 显示配置
+        textColor: 'white',
+        theme: 'dark',
+        cardHeight: 420
     },
     {
         id: 'claude',
@@ -53,6 +65,15 @@ export const aiTools = [
         tags: ['ai', 'chatbot', 'anthropic', '对话', '常用'],
         isHot: true,
         isFeatured: false,
+        screenshots: [
+            '/preview/claude/1.png',
+            '/preview/claude/2.png',
+            '/preview/claude/3.png'
+        ],
+        // 添加 FeatureCard 显示配置
+        textColor: 'white',
+        imagePosition: 'image-backdrop',
+        showButton: true
     },
     {
         id: 'doubao',

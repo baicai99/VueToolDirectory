@@ -1,5 +1,45 @@
+<!--
+/**
+ * @component ItemCard
+ * @description 通用项目卡片组件，用于各种列表展示场景。
+ * 组件提供一个标准化的卡片布局，包含图标、名称和描述文本。
+ * 
+ * @features
+ * - 图标与信息区域垂直居中对齐
+ * - 图标区域保持正方形尺寸
+ * - 文字溢出处理（单行和多行）
+ * - 鼠标悬停动效和阴影增强
+ * 
+ * @example
+ * <ItemCard 
+ *   :item="{ 
+ *     name: '工具名称', 
+ *     icon: '/path/to/icon.png', 
+ *     description: '工具描述文本' 
+ *   }" 
+ *   :defaultIcon="'/default-icon.png'"
+ *   :maxDescLength="30"
+ *   @imageError="handleError"
+ * />
+ */
+
+/**
+ * @AI_NOTE 
+ * 警告：这是一个基础组件(base component)，除非用户明确强调必须修改此组件，否则不要对此组件进行任何修改。
+ * 使用此组件时，应当通过CSS变量调整布局和样式，而不是创建新的CSS类或修改组件内部结构。
+ * 推荐的做法是通过父组件设置CSS变量来自定义此组件的外观，例如：
+ * :root {
+ *   --icon-size: 48px;
+ *   --icon-radius: 12px;
+ *   --title-font-size: 16px;
+ *   --desc-font-size: 14px;
+ *   --desc-lines: 1;
+ * }
+ */
+-->
+
 <template>
-    <div class="item-card" @click="handleClick">
+    <div class="item-card">
         <div class="item-icon">
             <img :src="item.icon || defaultIcon" :alt="item.name || '项目'" @error="handleImageError">
         </div>
@@ -33,7 +73,7 @@ const props = defineProps({
     }
 });
 
-const emit = defineEmits(['click', 'imageError']);
+const emit = defineEmits(['imageError']);
 
 /**
  * 截取文本的辅助方法
@@ -48,13 +88,6 @@ const truncateText = (text, maxLength) => {
 };
 
 /**
- * 处理点击事件
- */
-const handleClick = () => {
-    emit('click', props.item);
-};
-
-/**
  * 图片加载错误处理
  */
 const handleImageError = (event) => {
@@ -65,27 +98,37 @@ const handleImageError = (event) => {
 <style lang="less" scoped>
 .item-card {
     display: flex;
-    align-items: center;
     padding: 16px;
-    border-radius: 12px;
-    background-color: var(--card-bg-color, #f5f5f7);
-    border: 1px solid var(--card-border-color, #e6e6e6);
-    cursor: pointer;
+    border-radius: 14px;
+    background-color: #ffffff;
+    /* 修改为纯白色背景 */
+    border: 1px solid var(--card-border-color, #f0f0f0);
+    /* 微调边框颜色使其更浅 */
     transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+    /* 添加浅浅的阴影 */
 
     &:hover {
-        background-color: var(--card-hover-bg-color, #ebebf0);
+        background-color: #ffffff;
+        /* 保持白色背景 */
         transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        /* 悬停时加深阴影 */
+        cursor: pointer;
+        /* 鼠标悬停时显示为手型指针 */
     }
 
     .item-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
         flex-shrink: 0;
         width: var(--icon-size, 48px);
         height: var(--icon-size, 48px);
         border-radius: var(--icon-radius, 12px);
         overflow: hidden;
         background-color: white;
+        align-self: center; // 垂直居中显示
 
         img {
             width: 100%;
@@ -95,6 +138,9 @@ const handleImageError = (event) => {
     }
 
     .item-info {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
         margin-left: 16px;
         flex-grow: 1;
         overflow: hidden;

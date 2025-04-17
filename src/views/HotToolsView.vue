@@ -2,126 +2,129 @@
   <el-main class="hot-tools-main">
     <h1>热门工具</h1>
     <el-divider />
+    <FeatureGallery>
+      <li v-for="tool in featuredTools" :key="tool.id">
+        <FeatureCard :idSuffix="tool.id" :label="tool.category" :headline="tool.name" :imageUrl="tool.icon"
+          :imageAlt="tool.name" :showButton="tool.showButton !== undefined ? tool.showButton : true"
+          :cardWidth="tool.cardWidth" :cardHeight="tool.cardHeight"
+          :showText="tool.showText !== undefined ? tool.showText : true" :textColor="tool.textColor || 'black'"
+          :theme="tool.theme || 'light'" :imagePosition="tool.imagePosition || 'image-full'"
+          @openModal="openToolDetail(tool)" />
+      </li>
+    </FeatureGallery>
 
+    <h2 class="section-title">所有热门工具</h2>
     <div class="hot-tools-grid">
-      <ItemCard v-for="(tool, index) in hotTools" :key="index" :item="tool" :defaultIcon="defaultIcon"
-        @click="handleToolClick" class="hot-tool-card" />
+      <div v-for="tool in featuredTools" :key="'grid-' + tool.id" class="hot-tool-item">
+        <FeatureCard :idSuffix="tool.id" :label="tool.category" :headline="tool.name" :imageUrl="tool.icon"
+          :imageAlt="tool.name" :showButton="false" cardWidth="100%" :cardHeight="320" :showText="true"
+          :textColor="tool.textColor || 'black'" :theme="tool.theme || 'light'" :imagePosition="'image-backdrop'"
+          @openModal="openToolDetail(tool)" />
+      </div>
     </div>
-
-    <el-empty v-if="!hotTools.length" description="暂无热门工具数据"></el-empty>
   </el-main>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import ItemCard from '@/components/base/ItemCard.vue';
+import Card from '@/components/base/Card.vue';
+import FeatureCard from '@/components/base/FeatureCard.vue';
+import FeatureGallery from '@/components/base/FeatureGallery.vue';
+import { ElMessage } from 'element-plus';
+import { allTools } from '@/data/allCategories.js';
 
 const router = useRouter();
 const defaultIcon = '/public/icons/tool-icon-placeholder.png';
 
-// 热门工具数据示例
-const hotTools = ref([
-  {
-    id: 'tool1',
-    name: 'AI 图像生成器',
-    description: '基于最新的人工智能技术，快速生成高质量图像，支持多种风格和分辨率',
-    icon: '/public/icons/tool-icon-placeholder.png',
-    category: '图像工具'
-  },
-  {
-    id: 'tool2',
-    name: '智能写作助手',
-    description: '帮助您创作高质量内容，支持多种文体和风格，提供智能建议和修改',
-    icon: '/public/icons/chatgpt.jpg',
-    category: '文本工具'
-  },
-  {
-    id: 'tool3',
-    name: '视频编辑器',
-    description: '简单易用的视频编辑工具，内置丰富模板和特效，一键生成专业视频',
-    icon: '/public/icons/gemini.jpg',
-    category: '视频工具'
-  },
-  {
-    id: 'tool4',
-    name: '数据分析平台',
-    description: '强大的数据分析工具，支持多种数据源，生成直观的可视化图表',
-    icon: '/public/icons/claude.jpg',
-    category: '数据工具'
-  },
-  {
-    id: 'tool5',
-    name: '音频转写工具',
-    description: '将音频文件转写为文本，支持多种语言，准确率高',
-    icon: '/public/icons/hidream.png',
-    category: '音频工具'
-  },
-  {
-    id: 'tool6',
-    name: '背景移除工具',
-    description: '一键移除图片背景，生成透明背景图片，适用于电商产品图等场景',
-    icon: '/public/icons/remove-photos.png',
-    category: '图像工具'
-  }
-]);
+// 获取热门工具
+const featuredTools = ref([]);
 
-// 处理工具点击事件
-const handleToolClick = (tool) => {
+// 在组件挂载时获取数据
+onMounted(() => {
+  // 从allTools中筛选isHot为true的工具
+  featuredTools.value = allTools.filter(tool => tool.isHot === true);
+
+  // 如果没有热门工具，使用默认数据
+  if (featuredTools.value.length === 0) {
+    featuredTools.value = [
+      {
+        id: 'feature1',
+        name: '特色工具1',
+        description: '这是一个特色工具的描述',
+        icon: 'https://picsum.photos/600',
+        category: '特色工具',
+        cardWidth: 350,
+        cardHeight: 450,
+        textColor: 'white',
+        imagePosition: 'image-backdrop',
+        showButton: true,
+        showText: true
+      },
+      {
+        id: 'feature2',
+        name: '特色工具2',
+        description: '这是另一个特色工具的描述',
+        icon: 'https://picsum.photos/600',
+        category: '特色工具',
+        theme: 'dark',
+        textColor: 'white'
+      }
+    ];
+  }
+});
+
+// 添加状态变量
+const showToolDetail = ref(false);
+const selectedTool = ref(null);
+
+// 打开工具详情模态框
+const openToolDetail = (tool) => {
   router.push({
     name: 'tool-detail',
-    params: { id: tool.id },
-    query: { name: tool.name }
+    params: { id: tool.id }
   });
+};
+
+// 处理图片加载错误
+const handleImageError = (event) => {
+  event.target.src = defaultIcon;
 };
 </script>
 
 <style lang="less" scoped>
 .hot-tools-main {
-  padding: 20px; // 添加内边距，与其他视图统一
+  padding: 20px;
   box-sizing: border-box;
-  height: 100%; // 尝试让其填充父容器高度
+  height: 100%;
 
   h1 {
-    margin-top: 0; // 移除 h1 默认的上边距
+    margin-top: 0;
   }
 
   .hot-tools-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 24px;
     margin-top: 20px;
   }
 
-  .hot-tool-card {
-    // 自定义热门工具卡片样式
-    --card-bg-color: #f8f9fa;
-    --card-hover-bg-color: #f0f2f5;
-    --icon-size: 56px;
-    --title-font-size: 18px;
-    --desc-lines: 2;
-
-    border-radius: 8px;
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-
-    &:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 6px 16px 0 rgba(0, 0, 0, 0.1);
-    }
+  .hot-tool-item {
+    width: 100%;
+    height: 100%;
   }
-}
 
-// 响应式调整
-@media (max-width: 768px) {
-  .hot-tools-main {
+  .section-title {
+    margin-top: 40px;
+    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: 600;
+  }
+
+  // 响应式调整
+  @media (max-width: 768px) {
     .hot-tools-grid {
       grid-template-columns: 1fr;
-    }
-
-    .hot-tool-card {
-      --icon-size: 48px;
-      --title-font-size: 16px;
     }
   }
 }

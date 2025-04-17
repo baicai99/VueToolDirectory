@@ -1,63 +1,62 @@
 <template>
-    <div class="modal modal-scrim modal-page-overlay modal-open visually-visible" v-if="tool"
-        @click="handleOverlayClick">
-        <div class="modal-overlay-container">
-            <div class="modal-overlay" aria-modal="true" role="dialog" @click.stop>
-                <!-- 工具详情内容 -->
-                <div class="modal-content-container">
-                    <div class="modal-content-wrapper variant-crossfade">
-                        <div class="modal-content">
-                            <!-- 使用子组件：顶部图片和类型标签 -->
-                            <ToolDetailHeader :iconUrl="resolvedIconUrl" :toolName="tool.name" :category="tool.category"
-                                :defaultIcon="defaultToolIcon" @imageError="handleImageError" />
+    <Card v-if="tool" v-model:visible="isVisible" modalClass="tool-detail-modal" @close="closeDetail">
+        <!-- 工具详情内容 -->
+        <div class="modal-content-container">
+            <div class="modal-content-wrapper variant-crossfade">
+                <div class="modal-content">
+                    <!-- 使用子组件：顶部图片和类型标签 -->
+                    <ToolDetailHeader :iconUrl="resolvedIconUrl" :toolName="tool.name" :category="tool.category"
+                        :defaultIcon="defaultToolIcon" @imageError="handleImageError" />
 
-                            <!-- 使用子组件：应用商店式布局 -->
-                            <ToolInfoSection :iconUrl="resolvedIconUrl" :toolName="tool.name"
-                                :description="tool.shortDescription || tool.description" @imageError="handleImageError"
-                                @visitWebsite="openToolWebsite" />
+                    <!-- 使用子组件：应用商店式布局 -->
+                    <ToolInfoSection :iconUrl="resolvedIconUrl" :toolName="tool.name"
+                        :description="tool.shortDescription || tool.description" @imageError="handleImageError"
+                        @visitWebsite="openToolWebsite" />
 
-                            <!-- 使用子组件：预览组件 -->
-                            <ToolPreviewSection :toolName="tool.name" :screenshots="toolScreenshots" />
-
-                            <!-- 工具内容正文 -->
-                            <div class="tool-detail-body">
-                                <!-- 使用子组件：工具描述部分 -->
-                                <ToolDescriptionSection
-                                    :longDescription="tool.longDescription || tool.description || '暂无详细描述。'"
-                                    :tags="toolTags" :recommendedTools="recommendedTools" :defaultIcon="defaultToolIcon"
-                                    @viewTool="viewRelatedTool" @imageError="handleImageError" />
+                    <!-- 替换ToolPreviewSection为FeatureGallery组件 -->
+                    <div class="preview-section">
+                        <h3 class="section-title">预览</h3>
+                        <div class="preview-overflow-container">
+                            <FeatureGallery v-if="toolScreenshots && toolScreenshots.length > 0">
+                                <li v-for="(screenshot, index) in toolScreenshots" :key="index">
+                                    <FeatureCard :idSuffix="`preview-${index}`" :label="tool.name"
+                                        :headline="`${tool.name} 截图 ${index + 1}`" :imageUrl="screenshot"
+                                        :imageAlt="`${tool.name} 预览图片 ${index + 1}`" imagePosition="image-full"
+                                        @openModal="handlePreviewClick(screenshot)" />
+                                </li>
+                            </FeatureGallery>
+                            <div v-else class="preview-placeholder">
+                                <div class="no-preview-text">暂无预览图</div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- 关闭按钮 -->
-                <button type="button" class="modal-close-button" @click="closeDetail">
-                    <span>
-                        <i class="el-icon">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
-                                <path fill="currentColor"
-                                    d="M764.288 214.592 512 466.88 259.712 214.592a31.936 31.936 0 0 0-45.12 45.12L466.752 512 214.528 764.224a31.936 31.936 0 1 0 45.12 45.184L512 557.184l252.288 252.288a31.936 31.936 0 0 0 45.12-45.12L557.12 512.064l252.288-252.352a31.936 31.936 0 1 0-45.12-45.184z">
-                                </path>
-                            </svg>
-                        </i>
-                    </span>
-                </button>
+                    <!-- 工具内容正文 -->
+
+                    <!-- 使用子组件：工具描述部分 -->
+                    <ToolDescriptionSection :longDescription="tool.longDescription || tool.description || '暂无详细描述。'"
+                        :tags="toolTags" :recommendedTools="recommendedTools" :defaultIcon="defaultToolIcon"
+                        @viewTool="viewRelatedTool" @imageError="handleImageError" />
+
+                </div>
             </div>
         </div>
-    </div>
+    </Card>
 </template>
 
 <script setup>
-import { computed, watch, onUnmounted } from 'vue';
+import { computed, watch, onUnmounted, ref } from 'vue';
 import { ElNotification } from 'element-plus';
 import { defaultToolIcon } from '../../data/allCategories.js';
+import Card from '../base/Card.vue';
 
 // 导入子组件
 import ToolDetailHeader from './tool-detail-components/ToolDetailHeader.vue';
 import ToolInfoSection from './tool-detail-components/ToolInfoSection.vue';
-import ToolPreviewSection from './tool-detail-components/ToolPreviewSection.vue';
 import ToolDescriptionSection from './tool-detail-components/ToolDescriptionSection.vue';
+// 导入新组件替代ToolPreviewSection
+import FeatureGallery from '../base/FeatureGallery.vue';
+import FeatureCard from '../base/FeatureCard.vue';
 
 const props = defineProps({
     tool: {
@@ -71,6 +70,9 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['close', 'viewRelated']);
+
+// 添加可见性状态控制
+const isVisible = ref(true);
 
 // 确保标签始终有值
 const toolTags = computed(() => {
@@ -194,13 +196,14 @@ const handleImageError = (event) => {
 
 // 关闭详情
 const closeDetail = () => {
+    isVisible.value = false;
     emit('close');
 };
 
-// 处理背景点击关闭
-const handleOverlayClick = () => {
-    closeDetail();
-};
+// 不再需要处理背景点击关闭，由Card组件处理
+// const handleOverlayClick = () => {
+//     closeDetail();
+// };
 
 // 打开工具网站
 const openToolWebsite = () => {
@@ -227,11 +230,11 @@ watch(() => props.tool, (newVal) => {
     if (newVal) {
         // 保存原始overflow值
         originalOverflow = document.body.style.overflow;
-        // 禁止滚动，只在组件显示时禁用
-        document.body.style.overflow = 'hidden';
+        // 显示模态框
+        isVisible.value = true;
     } else {
-        // 恢复滚动
-        document.body.style.overflow = originalOverflow || '';
+        // 隐藏模态框
+        isVisible.value = false;
     }
 }, { immediate: true });
 
@@ -240,57 +243,23 @@ onUnmounted(() => {
     // 即使组件意外销毁，也确保恢复滚动状态
     document.body.style.overflow = originalOverflow || '';
 });
+
+// 添加处理预览图点击的方法
+const handlePreviewClick = (imageUrl) => {
+    // 这里可以添加点击预览图后的逻辑，例如显示大图等
+    if (imageUrl) {
+        ElNotification({
+            title: '图片预览',
+            message: '查看大图',
+            type: 'info'
+        });
+        window.open(imageUrl, '_blank');
+    }
+};
 </script>
 
 <style lang="less" scoped>
-// --- 苹果风格的模态框样式 ---
-.modal {
-    position: fixed;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    z-index: 11000;
-    overflow: auto;
-
-    &.modal-scrim {
-        background-color: rgba(0, 0, 0, 0.48);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-    }
-
-    &.modal-open {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-}
-
-.modal-overlay-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    height: 100%;
-    padding: 20px;
-    box-sizing: border-box;
-}
-
-.modal-overlay {
-    position: relative;
-    background-color: white;
-    border-radius: 14px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-    width: 100%;
-    max-width: 900px;
-    margin: auto;
-    overflow: hidden;
-    padding: 0;
-    transform: translateZ(0);
-    will-change: transform;
-    isolation: isolate;
-}
-
+// --- 内容样式 ---
 .modal-content-container {
     width: 100%;
 }
@@ -303,41 +272,85 @@ onUnmounted(() => {
     width: 100%;
 }
 
-.modal-close-button {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    z-index: 10;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background-color: rgba(0, 0, 0, 0.3);
-    border: none;
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-
-    &:hover {
-        background-color: rgba(0, 0, 0, 0.5);
-    }
-
-    i {
-        font-size: 16px;
-    }
-}
-
 .tool-detail-body {
     padding: 0 20px 20px;
 }
 
+// 预览部分样式
+.preview-section {
+    padding: 20px 0 30px;
+
+    // 删除旧的preview-title样式，使用section-title样式
+    .section-title {
+        font-size: 24px;
+        line-height: 1.16667;
+        font-weight: 600;
+        letter-spacing: .009em;
+        color: #1d1d1f;
+        margin: 0 0 20px;
+        // padding: 0 20px;
+    }
+
+    .preview-placeholder {
+        width: 100%;
+        height: 300px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #e5e9f2;
+        color: #909399;
+        font-size: 14px;
+        font-weight: bold;
+        border-radius: 12px;
+        margin: 0 20px;
+    }
+
+    // 新增预览容器样式，允许内容超出右侧内边距
+    .preview-overflow-container {
+        position: relative;
+        width: 100%;
+        margin-right: calc(var(--modal-overlay-padding-inline) * -1);
+        padding-right: var(--modal-overlay-padding-inline);
+
+        :deep(.gallery) {
+            overflow: visible;
+        }
+
+        :deep(.scroll-container) {
+            margin-right: calc(var(--modal-overlay-padding-inline) * -1);
+            padding-right: var(--modal-overlay-padding-inline);
+        }
+
+        :deep(.card-set) {
+            margin-right: 0;
+        }
+    }
+}
+
+// 移除预览组件、tags组件、推荐组件和描述组件的左右内边距
+:deep(.tags-section) {
+    padding: 0 0 30px;
+}
+
+:deep(.recommendations-section) {
+    padding: 0 0 30px;
+}
+
+:deep(.description-container) {
+    padding: 30px 0;
+}
+
 // --- 响应式调整 ---
 @media (max-width: 768px) {
-    .modal-overlay {
+    :deep(.modal-overlay) {
         max-width: 100%;
         border-radius: 12px;
+    }
+
+    .preview-section {
+        .preview-placeholder {
+            height: 220px;
+        }
     }
 }
 </style>

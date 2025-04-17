@@ -46,7 +46,8 @@ const onVisitWebsite = () => {
 .app-store-layout {
     display: flex;
     align-items: center;
-    padding: 20px;
+    padding: 20px 0;
+    /* 修改：移除左右内边距，只保留上下内边距 */
     border-radius: 8px;
     margin: 20px 0;
 
