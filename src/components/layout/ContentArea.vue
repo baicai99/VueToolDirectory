@@ -27,7 +27,7 @@
     <section class="tools-section">
       <el-row :gutter="20" class="tools-grid">
         <el-col v-for="tool in filteredTools" :key="tool.id" :xs="24" :sm="12" :md="8" :lg="6" :xl="4">
-          <ToolCard :tool="tool" @open-detail="openToolDetail" />
+          <ItemCard :item="tool" @imageError="handleImageError" @click="openToolDetail(tool)" />
         </el-col>
         <el-col v-if="filteredTools.length === 0" :span="24" class="empty-state">
           <el-empty description="没有找到匹配的工具" />
@@ -43,7 +43,7 @@
       </el-divider>
       <el-row :gutter="20" class="tools-grid">
         <el-col v-for="tool in hotTools" :key="'hot-' + tool.id" :xs="24" :sm="12" :md="8" :lg="6" :xl="4">
-          <ToolCard :tool="tool" @open-detail="openToolDetail" />
+          <ItemCard :item="tool" @imageError="handleImageError" @click="openToolDetail(tool)" />
         </el-col>
         <el-col v-if="hotTools.length === 0" :span="24" class="empty-state">
           <el-empty description="暂无热门工具" />
@@ -60,7 +60,7 @@
 import { ref, computed, defineProps, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useScrollLock } from '@vueuse/core'; // 引入 useScrollLock
-import ToolCard from '../tools/ToolCard.vue';
+import ItemCard from '../base/ItemCard.vue';
 import ToolDetail from '../tools/ToolDetail.vue';
 import { Promotion, ArrowRight, HotWater } from '@element-plus/icons-vue';
 
