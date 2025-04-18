@@ -25,14 +25,15 @@
     <el-divider v-if="featuredTools.length > 0" class="section-divider" />
 
     <section class="tools-section">
-      <el-row :gutter="20" class="tools-grid">
-        <el-col v-for="tool in filteredTools" :key="tool.id" :xs="24" :sm="12" :md="8" :lg="6" :xl="4">
-          <ItemCard :item="tool" @imageError="handleImageError" @click="openToolDetail(tool)" />
-        </el-col>
-        <el-col v-if="filteredTools.length === 0" :span="24" class="empty-state">
+      <div class="tools-grid">
+        <template v-for="tool in filteredTools" :key="tool.id">
+          <ItemCard :item="tool" :defaultIcon="defaultToolIcon" @imageError="handleImageError"
+            @click="openToolDetail(tool)" />
+        </template>
+        <div v-if="filteredTools.length === 0" class="empty-state">
           <el-empty description="没有找到匹配的工具" />
-        </el-col>
-      </el-row>
+        </div>
+      </div>
     </section>
 
     <section class="hot-tools-section">
@@ -41,14 +42,15 @@
           <HotWater />
         </el-icon> 热门工具
       </el-divider>
-      <el-row :gutter="20" class="tools-grid">
-        <el-col v-for="tool in hotTools" :key="'hot-' + tool.id" :xs="24" :sm="12" :md="8" :lg="6" :xl="4">
-          <ItemCard :item="tool" @imageError="handleImageError" @click="openToolDetail(tool)" />
-        </el-col>
-        <el-col v-if="hotTools.length === 0" :span="24" class="empty-state">
+      <div class="tools-grid">
+        <template v-for="tool in hotTools" :key="'hot-' + tool.id">
+          <ItemCard :item="tool" :defaultIcon="defaultToolIcon" @imageError="handleImageError"
+            @click="openToolDetail(tool)" />
+        </template>
+        <div v-if="hotTools.length === 0" class="empty-state">
           <el-empty description="暂无热门工具" />
-        </el-col>
-      </el-row>
+        </div>
+      </div>
     </section>
 
     <ToolDetail v-if="selectedTool" :tool="selectedTool" :allTools="props.allToolsData" @close="closeToolDetail"
@@ -63,6 +65,8 @@ import { useScrollLock } from '@vueuse/core'; // 引入 useScrollLock
 import ItemCard from '../base/ItemCard.vue';
 import ToolDetail from '../tools/ToolDetail.vue';
 import { Promotion, ArrowRight, HotWater } from '@element-plus/icons-vue';
+// 导入默认图标路径
+import { defaultToolIcon } from '@/data/allCategories.js';
 
 // --- Props ---
 const props = defineProps({
@@ -142,6 +146,16 @@ const handleTabClick = (tab) => {
 const viewRelatedTool = (tool) => {
   selectedTool.value = tool;
   isLocked.value = true; // 使用 useScrollLock 锁定滚动
+};
+
+/**
+ * 处理图片加载错误
+ * @param {Event} event 事件对象
+ */
+const handleImageError = (event) => {
+  // 当图片加载失败时，可以在这里添加处理逻辑
+  console.log('Image load error:', event);
+  // 图片已在 ItemCard 组件内自动设置为默认图标
 };
 
 // --- Watchers ---
@@ -264,6 +278,39 @@ watch(() => props.sidebarSearchQuery, (newVal, oldVal) => {
   color: #909399;
   width: 100%;
   padding: 40px 0;
+}
+
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-gap: 20px;
+  width: 100%;
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+/* 中等屏幕保持两列 */
+@media (max-width: 991px) {
+  .tools-grid {
+    grid-template-columns: repeat(2, 1fr);
+    grid-gap: 18px;
+  }
+}
+
+/* 小屏幕保持单列 */
+@media (max-width: 680px) {
+  .tools-grid {
+    grid-template-columns: 1fr;
+    grid-gap: 15px;
+  }
+}
+
+/* 移动端适配网格布局 */
+@media (max-width: 768px) {
+  .tools-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-gap: 15px;
+  }
 }
 
 /* 移动端适配 */

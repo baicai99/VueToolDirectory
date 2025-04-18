@@ -91,6 +91,10 @@ const truncateText = (text, maxLength) => {
  * 图片加载错误处理
  */
 const handleImageError = (event) => {
+    // 当图片加载失败时，将图片源设置为默认图标
+    if (props.defaultIcon && event.target) {
+        event.target.src = props.defaultIcon;
+    }
     emit('imageError', event);
 };
 </script>

@@ -1,4 +1,5 @@
 <template>
+    <!-- 组件名：ToolInfoSection -->
     <div class="app-store-layout">
         <div class="app-icon-container">
             <img :src="iconUrl" :alt="toolName" class="app-icon" @error="onImageError">

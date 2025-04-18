@@ -13,13 +13,13 @@
                         :description="tool.shortDescription || tool.description" @imageError="handleImageError"
                         @visitWebsite="openToolWebsite" />
 
-                    <!-- 替换ToolPreviewSection为FeatureGallery组件 -->
+
                     <div class="preview-section">
                         <h3 class="section-title">预览</h3>
                         <div class="preview-overflow-container">
                             <FeatureGallery v-if="toolScreenshots && toolScreenshots.length > 0">
                                 <li v-for="(screenshot, index) in toolScreenshots" :key="index">
-                                    <FeatureCard :idSuffix="`preview-${index}`" :label="tool.name"
+                                    <FeatureCard :cardWidth="650" :showButton="false" :idSuffix="`preview-${index}`" :label="tool.name"
                                         :headline="`${tool.name} 截图 ${index + 1}`" :imageUrl="screenshot"
                                         :imageAlt="`${tool.name} 预览图片 ${index + 1}`" imagePosition="image-full"
                                         @openModal="handlePreviewClick(screenshot)" />

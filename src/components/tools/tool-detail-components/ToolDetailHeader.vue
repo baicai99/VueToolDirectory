@@ -1,4 +1,5 @@
 <template>
+    <!-- 组件名： ToolDetailHeader-->
     <div class="tool-header">
         <div class="header-background"></div>
 
@@ -50,12 +51,13 @@ const onImageError = (event) => {
 
 <style lang="less" scoped>
 .tool-header {
+    border-radius: 30px;
     position: relative;
     min-height: 280px;
     overflow: hidden;
     padding: 40px 20px 60px;
     color: #333;
-    background-color: #f5f7fa;
+    // background-color: #f5f7fa;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
@@ -128,7 +130,6 @@ const onImageError = (event) => {
         height: 120px;
         object-fit: contain;
         border-radius: 22px;
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
     }
 }
 

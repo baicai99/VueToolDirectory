@@ -1,3 +1,44 @@
+<!--
+/**
+ * @component FeatureGallery
+ * @description 一个响应式的水平滚动特性卡片画廊组件，提供左右导航按钮控制卡片滚动。
+ * 
+ * 该组件实现了一个水平滚动的画廊，主要用于展示特性卡片或其他内容，具有以下特点：
+ * - 响应式设计，适配不同屏幕尺寸
+ * - 平滑的水平滚动效果
+ * - 自动计算可见卡片数量和滚动控制
+ * - 左右导航按钮，可在卡片间导航
+ * - 支持RTL(从右到左)布局
+ * 
+ * @example
+ * <FeatureGallery>
+ *   <FeatureCard title="功能1" />
+ *   <FeatureCard title="功能2" />
+ *   <FeatureCard title="功能3" />
+ * </FeatureGallery>
+ * 
+ * @slots
+ * default - 放置要在画廊中展示的卡片或其他内容元素
+ * 
+ * @implementation
+ * 内部实现细节：
+ * - 使用计算属性动态决定左右导航按钮的禁用状态
+ * - 自动计算卡片宽度和当前可见卡片数量
+ * - 监听窗口大小变化以适配不同设备
+ * - 平滑滚动动画实现
+ * - 支持触控滑动和按钮点击导航
+ * 
+ * @aiInstructions
+ * AI注意事项:
+ * - 此组件包含经过精心调整的滚动逻辑和样式
+ * - 请不要修改现有代码的结构和逻辑，除非用户明确授权
+ * - 特别注意不要改变滚动计算方法、事件处理函数和DOM引用
+ * - CSS变量和样式结构对组件的正常运行至关重要，请勿随意更改
+ * - 如需添加功能，请在保持现有代码完整性的基础上进行扩展
+ * - 对此组件的任何修改都应经过充分测试以确保不影响现有功能
+ */
+-->
+ 
 <template>
     <section class="section section-consider">
         <div class="consider-container v0 staggered-end">
@@ -51,15 +92,23 @@ const isPrevDisabled = ref(true);
 const isNextDisabled = ref(false);
 const scrollPosition = ref(0);
 const maxScrollPosition = ref(0);
-
-// 配置参数
-const scrollAmount = 400; // 每次点击滚动的像素量
+const cardWidth = ref(0); // 存储卡片的平均宽度
+const visibleCards = ref(0); // 当前可见卡片数量
+const totalCardCount = ref(0); // 存储总卡片数量
+const currentCardIndex = ref(0); // 当前显示的第一张卡片索引
 
 // --- 计算属性 ---
-const canScrollLeft = computed(() => scrollPosition.value > 0);
+const canScrollLeft = computed(() => currentCardIndex.value > 0);
 const canScrollRight = computed(() => {
-    if (!scrollContainer.value) return false;
-    return scrollPosition.value < maxScrollPosition.value;
+    if (!scrollContainer.value || totalCardCount.value === 0) return false;
+    return currentCardIndex.value < totalCardCount.value - visibleCards.value;
+});
+
+// 计算每次滚动的距离，基于当前可见的卡片宽度
+const scrollDistance = computed(() => {
+    // 如果有卡片宽度信息，则滚动一个完整卡片的距离
+    // 如果没有，则使用默认值400px
+    return cardWidth.value > 0 ? cardWidth.value : 400;
 });
 
 // --- 方法 ---
@@ -70,7 +119,42 @@ const updateScrollState = () => {
     maxScrollPosition.value =
         scrollContainer.value.scrollWidth - scrollContainer.value.clientWidth;
 
+    // 计算当前显示的第一张卡片索引
+    currentCardIndex.value = cardWidth.value > 0 ?
+        Math.round(scrollPosition.value / cardWidth.value) : 0;
+
     // 更新按钮状态
+    isPrevDisabled.value = !canScrollLeft.value;
+    isNextDisabled.value = !canScrollRight.value;
+
+    // 计算当前视窗中可以显示多少卡片
+    calculateCardMetrics();
+};
+
+const calculateCardMetrics = () => {
+    if (!scrollContainer.value) return;
+
+    // 获取所有卡片元素
+    const cards = scrollContainer.value.querySelectorAll('.card-set > *');
+    if (cards.length === 0) return;
+
+    // 更新总卡片数量
+    totalCardCount.value = cards.length;
+
+    // 计算平均卡片宽度（包括间距）
+    let totalWidth = 0;
+    cards.forEach(card => {
+        totalWidth += card.offsetWidth;
+    });
+
+    // 设置平均卡片宽度
+    cardWidth.value = totalWidth / cards.length;
+
+    // 计算当前可视区域能显示多少卡片
+    const containerWidth = scrollContainer.value.clientWidth;
+    visibleCards.value = Math.floor(containerWidth / cardWidth.value);
+
+    // 重新检查按钮状态
     isPrevDisabled.value = !canScrollLeft.value;
     isNextDisabled.value = !canScrollRight.value;
 };
@@ -78,7 +162,10 @@ const updateScrollState = () => {
 const handlePrevClick = () => {
     if (!scrollContainer.value || !canScrollLeft.value) return;
 
-    const newPosition = Math.max(0, scrollPosition.value - scrollAmount);
+    // 滚动到上一张卡片
+    currentCardIndex.value = Math.max(0, currentCardIndex.value - 1);
+    const newPosition = currentCardIndex.value * cardWidth.value;
+
     scrollContainer.value.scrollTo({
         left: newPosition,
         behavior: 'smooth'
@@ -88,10 +175,13 @@ const handlePrevClick = () => {
 const handleNextClick = () => {
     if (!scrollContainer.value || !canScrollRight.value) return;
 
-    const newPosition = Math.min(
-        maxScrollPosition.value,
-        scrollPosition.value + scrollAmount
+    // 滚动到下一张卡片
+    currentCardIndex.value = Math.min(
+        totalCardCount.value - visibleCards.value,
+        currentCardIndex.value + 1
     );
+    const newPosition = currentCardIndex.value * cardWidth.value;
+
     scrollContainer.value.scrollTo({
         left: newPosition,
         behavior: 'smooth'
@@ -100,15 +190,21 @@ const handleNextClick = () => {
 
 // --- 生命周期钩子 ---
 onMounted(() => {
-    // 初始化滚动状态
-    updateScrollState();
+    // 初始化滚动状态和卡片指标
+    setTimeout(() => {
+        updateScrollState();
+        calculateCardMetrics();
+    }, 200); // 短暂延迟以确保DOM完全渲染
 
     // 监听滚动事件以更新按钮状态
     if (scrollContainer.value) {
         scrollContainer.value.addEventListener('scroll', updateScrollState);
 
-        // 监听窗口大小变化以更新最大滚动位置
-        window.addEventListener('resize', updateScrollState);
+        // 监听窗口大小变化以更新最大滚动位置和卡片指标
+        window.addEventListener('resize', () => {
+            updateScrollState();
+            calculateCardMetrics();
+        });
     }
 });
 </script>
