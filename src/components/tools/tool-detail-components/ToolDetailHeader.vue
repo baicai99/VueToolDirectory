@@ -154,4 +154,31 @@ const onImageError = (event) => {
         border-radius: 18px;
     }
 }
+
+@media (max-width: 768px) {
+    .tool-detail-header {
+        padding: 0 0 20px;
+
+        .header-image {
+            height: 150px;
+        }
+
+        .header-overlay {
+            padding: 10px;
+
+            .tool-category {
+                font-size: 0.75rem;
+                padding: 4px 12px;
+            }
+        }
+    }
+}
+
+@media (max-width: 480px) {
+    .tool-detail-header {
+        .header-image {
+            height: 120px;
+        }
+    }
+}
 </style>

@@ -166,8 +166,9 @@ const handleOverlayClick = () => {
 
 @media (max-width:734px) {
     .card-modal {
-        --modal-overlay-width: max(87.5%, 480px);
-        --modal-overlay-padding-bottom: 60px;
+        --modal-overlay-width: max(92%, 480px);
+        --modal-overlay-padding-bottom: 40px;
+        --modal-overlay-padding-inline: 30px;
     }
 }
 
@@ -175,6 +176,9 @@ const handleOverlayClick = () => {
     .card-modal {
         --modal-overlay-border-radius-bottom: 0;
         --modal-overlay-width: 100%;
+        --modal-overlay-padding-inline: 20px;
+        --modal-overlay-padding-top: 50px;
+        --modal-overlay-padding-bottom: 30px;
         --modal-close-button-offset-top: max(16px, env(safe-area-inset-top));
     }
 }

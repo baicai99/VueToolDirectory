@@ -1,46 +1,35 @@
 <template>
     <Card v-if="tool" v-model:visible="isVisible" modalClass="tool-detail-modal" @close="closeDetail">
-        <!-- 工具详情内容 -->
-        <div class="modal-content-container">
-            <div class="modal-content-wrapper variant-crossfade">
-                <div class="modal-content">
-                    <!-- 使用子组件：顶部图片和类型标签 -->
-                    <ToolDetailHeader :iconUrl="resolvedIconUrl" :toolName="tool.name" :category="tool.category"
-                        :defaultIcon="defaultToolIcon" @imageError="handleImageError" />
+        <!-- 使用子组件：顶部图片和类型标签 -->
+        <ToolDetailHeader :iconUrl="resolvedIconUrl" :toolName="tool.name" :category="tool.category"
+            :defaultIcon="defaultToolIcon" @imageError="handleImageError" />
 
-                    <!-- 使用子组件：应用商店式布局 -->
-                    <ToolInfoSection :iconUrl="resolvedIconUrl" :toolName="tool.name"
-                        :description="tool.shortDescription || tool.description" @imageError="handleImageError"
-                        @visitWebsite="openToolWebsite" />
+        <!-- 使用子组件：应用商店式布局 -->
+        <ToolInfoSection :iconUrl="resolvedIconUrl" :toolName="tool.name"
+            :description="tool.shortDescription || tool.description" @imageError="handleImageError"
+            @visitWebsite="openToolWebsite" />
 
-
-                    <div class="preview-section">
-                        <h3 class="section-title">预览</h3>
-                        <div class="preview-overflow-container">
-                            <FeatureGallery v-if="toolScreenshots && toolScreenshots.length > 0">
-                                <li v-for="(screenshot, index) in toolScreenshots" :key="index">
-                                    <FeatureCard :cardWidth="650" :showButton="false" :idSuffix="`preview-${index}`" :label="tool.name"
-                                        :headline="`${tool.name} 截图 ${index + 1}`" :imageUrl="screenshot"
-                                        :imageAlt="`${tool.name} 预览图片 ${index + 1}`" imagePosition="image-full"
-                                        @openModal="handlePreviewClick(screenshot)" />
-                                </li>
-                            </FeatureGallery>
-                            <div v-else class="preview-placeholder">
-                                <div class="no-preview-text">暂无预览图</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 工具内容正文 -->
-
-                    <!-- 使用子组件：工具描述部分 -->
-                    <ToolDescriptionSection :longDescription="tool.longDescription || tool.description || '暂无详细描述。'"
-                        :tags="toolTags" :recommendedTools="recommendedTools" :defaultIcon="defaultToolIcon"
-                        @viewTool="viewRelatedTool" @imageError="handleImageError" />
-
+        <div class="preview-section">
+            <h3 class="section-title">预览</h3>
+            <div class="preview-overflow-container">
+                <FeatureGallery v-if="toolScreenshots && toolScreenshots.length > 0">
+                    <li v-for="(screenshot, index) in toolScreenshots" :key="index">
+                        <FeatureCard :cardWidth="650" :showButton="false" :idSuffix="`preview-${index}`"
+                            :label="tool.name" :headline="`${tool.name} 截图 ${index + 1}`" :imageUrl="screenshot"
+                            :imageAlt="`${tool.name} 预览图片 ${index + 1}`" imagePosition="image-full"
+                            @openModal="handlePreviewClick(screenshot)" />
+                    </li>
+                </FeatureGallery>
+                <div v-else class="preview-placeholder">
+                    <div class="no-preview-text">暂无预览图</div>
                 </div>
             </div>
         </div>
+
+        <!-- 使用子组件：工具描述部分 -->
+        <ToolDescriptionSection :longDescription="tool.longDescription || tool.description || '暂无详细描述。'"
+            :tags="toolTags" :recommendedTools="recommendedTools" :defaultIcon="defaultToolIcon"
+            @viewTool="viewRelatedTool" @imageError="handleImageError" />
     </Card>
 </template>
 
@@ -260,14 +249,6 @@ const handlePreviewClick = (imageUrl) => {
 
 <style lang="less" scoped>
 // --- 内容样式 ---
-.modal-content-container {
-    width: 100%;
-}
-
-.modal-content-wrapper {
-    width: 100%;
-}
-
 .modal-content {
     width: 100%;
 }
@@ -288,7 +269,6 @@ const handlePreviewClick = (imageUrl) => {
         letter-spacing: .009em;
         color: #1d1d1f;
         margin: 0 0 20px;
-        // padding: 0 20px;
     }
 
     .preview-placeholder {
@@ -348,8 +328,39 @@ const handlePreviewClick = (imageUrl) => {
     }
 
     .preview-section {
+        padding: 15px 0 20px;
+
         .preview-placeholder {
-            height: 220px;
+            height: 180px;
+            margin: 0 10px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+    }
+
+    :deep(.tags-section) {
+        padding: 0 0 20px;
+    }
+
+    :deep(.recommendations-section) {
+        padding: 0 0 20px;
+    }
+
+    :deep(.description-container) {
+        padding: 20px 0;
+    }
+}
+
+@media (max-width: 480px) {
+
+    // 超小屏幕适配
+    .preview-section {
+        .preview-overflow-container {
+            margin-right: calc(var(--modal-overlay-padding-inline) * -1);
+            padding-right: var(--modal-overlay-padding-inline);
         }
     }
 }

@@ -93,4 +93,51 @@ const onVisitWebsite = () => {
         }
     }
 }
+
+@media (max-width: 768px) {
+    .app-store-layout {
+        padding: 15px 0;
+        margin: 10px 0;
+
+        .app-icon-container {
+            width: 72px;
+            height: 72px;
+            border-radius: 14px;
+        }
+
+        .app-info-container {
+            margin-left: 15px;
+
+            .app-name {
+                font-size: 18px;
+            }
+
+            .app-slogan {
+                margin-bottom: 12px;
+                font-size: 13px;
+            }
+
+            .official-website-btn {
+                padding: 6px 15px;
+                font-size: 13px;
+            }
+        }
+    }
+}
+
+@media (max-width: 480px) {
+    .app-store-layout {
+        padding: 12px 0;
+
+        .app-icon-container {
+            width: 64px;
+            height: 64px;
+            border-radius: 12px;
+        }
+
+        .app-info-container {
+            margin-left: 12px;
+        }
+    }
+}
 </style>

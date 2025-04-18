@@ -152,24 +152,57 @@ const onImageError = (event) => {
     .description-container,
     .tags-section,
     .recommendations-section {
-        padding-left: 20px;
-        padding-right: 20px;
+        padding-left: 0;
+        padding-right: 0;
     }
 
     .tool-description-section {
         .section-title {
             font-size: 20px;
+            margin-bottom: 15px;
         }
     }
 
     .description-container {
+        padding-top: 20px;
+        padding-bottom: 20px;
+
         .tool-description {
             font-size: 15px;
         }
     }
 
-    .recommendations-list {
-        grid-template-columns: 1fr;
+    .recommendations-section {
+        .recommendations-list {
+            grid-template-columns: 1fr;
+        }
+    }
+}
+
+@media (max-width: 480px) {
+    .tool-description-section {
+        .section-title {
+            font-size: 18px;
+            margin-bottom: 12px;
+        }
+    }
+
+    .description-container {
+        padding-top: 15px;
+        padding-bottom: 15px;
+
+        .tool-description {
+            font-size: 14px;
+            line-height: 1.4;
+        }
+    }
+
+    .tags-section {
+        padding-bottom: 20px;
+    }
+
+    .recommendations-section {
+        padding-bottom: 20px;
     }
 }
 
