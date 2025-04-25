@@ -2,6 +2,7 @@
   <div class="news-list-container">
     <div class="news-filter">
       <el-select v-model="selectedCategory" placeholder="选择分类" clearable @change="handleFilter">
+        <el-option label="全部" value="" />
         <el-option v-for="cat in categories" :key="cat" :label="cat" :value="cat" />
       </el-select>
       <el-input v-model="searchQuery" placeholder="搜索快讯" clearable @input="handleFilter" class="search-input">
@@ -22,7 +23,7 @@
     </div>
 
     <div class="news-pagination">
-      <el-pagination v-model:current-page="currentPage" v-model:page-size="pageSize" :page-sizes="[6, 12, 18, 24]"
+      <el-pagination v-model:current-page="currentPage" v-model:page-size="pageSize" :page-sizes="[20, 40]"
         :background="true" layout="total, sizes, prev, pager, next, jumper" :total="filteredNews.length"
         @size-change="handleSizeChange" @current-change="handleCurrentChange" />
     </div>
@@ -55,7 +56,7 @@ const props = defineProps({
 const selectedCategory = ref('');
 const searchQuery = ref('');
 const currentPage = ref(1);
-const pageSize = ref(6);
+const pageSize = ref(20);
 
 // 当前选中的新闻（用于详情页展示）
 const selectedNews = ref(null);
