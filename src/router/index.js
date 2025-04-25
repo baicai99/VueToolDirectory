@@ -8,6 +8,7 @@ import NewsView from '../views/NewsView.vue';
 import HotToolsView from '../views/HotToolsView.vue'; // 假设你也创建了 HotToolsView.vue
 import ChatWithMe from '../views/ChatWithMe.vue';
 import ExternalPageView from '../views/ExternalPageView.vue'; // <--- 1. 导入新组件
+import ContestView from '../views/ContestView.vue'; // 导入比赛视图组件
 
 // --- 移除内联定义 ---
 // const NewsView = { template: ... };
@@ -26,6 +27,12 @@ const routes = [
     path: '/hot-tools',
     name: 'HotTools',
     component: HotToolsView // --- 使用导入的组件 ---
+  },
+  // --- 新增的比赛路由 ---
+  {
+    path: '/contests',
+    name: 'Contests',
+    component: ContestView
   },
   // --- 新增的路由配置 ---
   // 这个模版修改的是外部ifram
@@ -46,6 +53,15 @@ const routes = [
       // 传入 Dify Chatbot 的 URL
       url: 'https://dify.zhengjiyuan.top/chatbot/9Y25YaGwhkda2Ayl'
     }
+  },
+  // 添加一个通用的外部页面路由处理程序
+  {
+    path: '/external/:url',
+    name: 'external-page',
+    component: ExternalPageView,
+    props: (route) => ({
+      url: decodeURIComponent(route.params.url)
+    })
   }
 ];
 

@@ -1,6 +1,6 @@
 // src/views/RankingView.vue
 <template>
-  <el-main class="ranking-view-main">
+  <div class="ranking-view-main">
     <h1 class="ranking-title">
       LLM 排行榜
       <span class="subtitle">综合能力评估</span>
@@ -26,7 +26,7 @@
             *数据仅为示例，非实时或权威排名。
         </div>
     </div>
-  </el-main>
+</div>
 </template>
 
 <script setup>
@@ -49,13 +49,9 @@ const llmRankingData = ref([
 </script>
 
 <style lang="less" scoped>
-/* 将之前 ContentArea.vue 中为排行榜添加的样式复制到这里 */
 .ranking-view-main {
-  padding: 20px;
   box-sizing: border-box;
   overflow-y: auto;
-  height: 100vh;
-  background-color: #f8f9fa; // 整体背景色可以调成浅色
 }
 
 .ranking-title {

@@ -1,12 +1,12 @@
 <template>
-  <el-main class="news-view-main">
+  <div class="news-view-main">
     <h1>每周 AI 快讯</h1>
     <el-divider />
 
     <news-list :news-data="newsData" :categories="categories" />
 
     <el-backtop :right="20" :bottom="20" />
-  </el-main>
+  </div>
 </template>
 
 <script setup>
@@ -131,9 +131,7 @@ onMounted(() => {
 
 <style lang="less" scoped>
 .news-view-main {
-  padding: 20px;
   box-sizing: border-box;
-  height: 100%;
 
   h1 {
     margin-top: 0;

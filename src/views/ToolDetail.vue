@@ -15,33 +15,31 @@
           <h1 class="detail-name">{{ tool.name }}</h1>
 
           <div class="detail-tags" v-if="tool.tags && tool.tags.length > 0">
-            <el-tag
-              v-for="tag in tool.tags"
-              :key="tag"
-              type="info"
-              size="small"
-              style="margin-right: 5px; margin-bottom: 5px;"
-            >
+            <el-tag v-for="tag in tool.tags" :key="tag" type="info" size="small"
+              style="margin-right: 5px; margin-bottom: 5px;">
               {{ tag }}
             </el-tag>
           </div>
 
           <div class="detail-link" v-if="tool.url">
             <el-link type="primary" :href="tool.url" target="_blank">
-              访问官网 <el-icon><Link /></el-icon>
+              访问官网 <el-icon>
+                <Link />
+              </el-icon>
             </el-link>
           </div>
         </el-col>
       </el-row>
 
       <el-card shadow="never" class="detail-description">
-         <template #header>
-           <div class="card-header">
-             <span>工具描述</span>
-           </div>
-         </template>
-         <p style="white-space: pre-wrap; line-height: 1.8;">{{ tool.longDescription || tool.description || '暂无详细描述。' }}</p>
-         </el-card>
+        <template #header>
+          <div class="card-header">
+            <span>工具描述</span>
+          </div>
+        </template>
+        <p style="white-space: pre-wrap; line-height: 1.8;">{{ tool.longDescription || tool.description || '暂无详细描述。' }}
+        </p>
+      </el-card>
 
     </div>
     <el-empty v-else description="未找到该工具的信息" />
@@ -51,7 +49,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { allTools } from '../data/tools.js'; // 导入工具数据源
+import { allTools } from '../data/index.js'; // 从新的index.js导入工具数据
 import defaultIconPath from '../assets/icons/tool-icon-placeholder.png';
 
 // 使用 import.meta.glob 动态导入 src/assets/icons 下的所有图片资源
@@ -107,8 +105,8 @@ const resolvedIconUrl = computed(() => {
 const handleImageError = (event) => {
   // 避免因默认图标也加载失败导致无限循环
   if (event.target.src !== defaultIcon) {
-      console.warn(`Failed to load image: ${event.target.src}. Falling back to default.`);
-      event.target.src = defaultIcon;
+    console.warn(`Failed to load image: ${event.target.src}. Falling back to default.`);
+    event.target.src = defaultIcon;
   }
 };
 
@@ -136,7 +134,7 @@ const goBack = () => {
     background-color: #fff;
     padding: 20px;
     border-radius: 8px;
-    box-shadow: 0 2px 12px 0 rgba(0,0,0,.05);
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .05);
   }
 
   .detail-icon {
@@ -147,9 +145,10 @@ const goBack = () => {
     border-radius: 8px;
     display: block;
     margin: 0 auto 15px auto;
-     @media (min-width: 640px) {
-        margin: 0; // 在较大屏幕上靠左
-     }
+
+    @media (min-width: 640px) {
+      margin: 0; // 在较大屏幕上靠左
+    }
   }
 
   .detail-name {
@@ -164,9 +163,10 @@ const goBack = () => {
 
   .detail-link {
     margin-bottom: 15px;
+
     .el-icon {
-        margin-left: 4px;
-        vertical-align: middle;
+      margin-left: 4px;
+      vertical-align: middle;
     }
   }
 
@@ -174,6 +174,7 @@ const goBack = () => {
     .card-header {
       font-weight: bold;
     }
+
     p {
       margin: 0;
       color: #606266;

@@ -6,7 +6,7 @@ import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import App from './App.vue'
 import router from './router'
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs' // 假设你配置了中文
-
+import './assets/css/main.css'
 const app = createApp(App)
 
 for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
